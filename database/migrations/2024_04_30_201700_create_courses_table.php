@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('hours');
             $table->string('material');
+            $table->enum('time',['first','last']);
+            $table->enum('chose',['elective','non_elective']);
             $table->timestamps();
         });
     }

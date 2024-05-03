@@ -17,8 +17,7 @@ return new class extends Migration
             $table->enum('type',['anything' , 'a2']) ; 
             $table->date('date') ; 
             $table->foreignId('prof_id')->constrained('profs')->onDelete('cascade')->onUpdate('cascade') ;
-            $table->foreignId('master_id')->constrained('masters')->onDelete('cascade')->onUpdate('cascade') ;
-            $table->foreignId('phds_id')->constrained('phds')->onDelete('cascade')->onUpdate('cascade') ;
+            $table->foreignId('student_id')->constrained('students')->onDelete('cascade')->onUpdate('cascade') ;
 
             $table->timestamps();
         });

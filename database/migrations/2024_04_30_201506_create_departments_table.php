@@ -13,14 +13,11 @@ return new class extends Migration
     {
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ['is', 'cs','ai' , 'sc']);  
-            $table->string('research_plan');
-            // $table->date('date');
-            // $table->string('subject'); 
-            // $table->foreignId('head_id')->constrained('heads')->onDelete('cascade')->onUpdate('cascade') ; 
-      
+            $table->enum('type', ['is', 'cs', 'ai', 'sc']);
+            $table->string('research_plan')->nullable();
             $table->timestamps();
         });
+        
     }
 
     /**

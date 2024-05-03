@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Employee extends Model
+class ViceDean extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['firstName', 'lastName', 'email', 'phone']; // إضافة المزيد حسب الحاجة
+    protected $fillable = ['first_name', 'last_name', 'email', 'degree']; // إضافة المزيد حسب الحاجة
 }

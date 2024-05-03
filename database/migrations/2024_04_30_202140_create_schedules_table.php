@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('department_courses', function (Blueprint $table) {
+        Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('course_id')->constrained('courses')->onDelete('cascade')->onUpdate('cascade') ;
-            $table->foreignId('department_id')->constrained('departments')->onDelete('cascade')->onUpdate('cascade') ;
+            $table->string('content');
+            $table->enum('type', ['study', 'exam']);
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('department_courses');
+        Schema::dropIfExists('schedules');
     }
 };
