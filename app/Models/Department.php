@@ -9,7 +9,7 @@ class Department extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['type', 'research_plan'];
+    protected $fillable = ['type', 'research_plan', 'head_id'];
 
     // علاقة القسم مع الطلاب (One-to-Many)
     public function students()

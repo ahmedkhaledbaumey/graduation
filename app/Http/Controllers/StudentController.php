@@ -66,7 +66,7 @@ class StudentController extends Controller
             'idea' => 'string',
             'email' => 'required|string|email|max:100|unique:students', // Ensure email uniqueness in the 'students' table
             'type' => 'required|in:' . implode(',', Student::type), // Validate 'type' field against predefined options in the Student model
-            'password' => '|string|confirmed|min:6', // Validate password confirmation and length
+            'password' => 'required|string|confirmed|min:6', // Validate password confirmation and length
         ]);
 
         // If validation fails, return errors
@@ -178,16 +178,57 @@ public function showcourses()
 public function showreports()
     { 
         $id = auth()->user()->id  ; 
-        $report = Report::where('student_id', $id)->first(); 
-        // $department = Report::student()->where('student_id', $id)->first();
-        // $reports = Report::findOrFail($id);
+        $report = Report::get();
+       
         return response()->json($report);
     }
+    public function showreport()
+    {
+        $student = auth()->user(); // Get the authenticated user (student)
+        
+        // Check if the student belongs to any department
+        if ($student->department) {
+            $head_id = $student->department->head_id;
+    
+            // Find the report for the student with the specified head_id
+            $report = Report::where('student_id', $student->id)
+                           
+                            ->first();
+    
+            if ($report) {
+                return response()->json($report);
+            } else {
+                return response()->json(['message' => 'Report not found.'], 404);
+            }
+        } else {
+            return response()->json(['message' => 'Student does not belong to any department.'], 404);
+        }
+    }
+    
 public function showscheduales($id)
     { 
         // $id = auth()->user()->id  ;
         $sceduals = Schedule::findOrFail($id);
         return response()->json($sceduals);
+    }
+    public function researchplan()
+    {
+        // Get the authenticated user (student)
+        $student = auth()->user();
+
+        // Check if the student belongs to any department
+        if ($student->department) {
+            // Retrieve the research plan from the associated department
+            $researchPlan = $student->department->research_plan;
+
+            return response()->json([
+                'research_plan' => $researchPlan,
+            ]);
+        } else {
+            return response()->json([
+                'error' => 'Student does not belong to any department.',
+            ], 404);
+        }
     }
 
 }

@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('reports', function (Blueprint $table) {
             $table->id();
             $table->string('content') ; 
-            $table->enum('type',['anything' , 'a2']) ; 
             $table->date('date') ; 
-            $table->foreignId('prof_id')->constrained('profs')->onDelete('cascade')->onUpdate('cascade') ;
-            $table->foreignId('student_id')->constrained('students')->onDelete('cascade')->onUpdate('cascade') ;
+            $table->foreignId('prof_id')->constrained('profs')->onDelete('cascade')->onUpdate('cascade')->nullable();
+            $table->foreignId('student_id')->constrained('students')->onDelete('cascade')->onUpdate('cascade')->nullable() ;
+            $table->foreignId('department_id')->constrained('departments')->onDelete('cascade')->onUpdate('cascade')->nullable(); 
+
 
             $table->timestamps();
         });

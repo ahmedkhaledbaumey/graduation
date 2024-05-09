@@ -9,7 +9,7 @@ class Report extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['content', 'type', 'date', 'prof_id', 'student_id']; // إضافة المزيد حسب الحاجة
+    protected $fillable = ['content', 'type', 'date', 'prof_id', 'student_id' ,'department_id']; // إضافة المزيد حسب الحاجة
 
     // علاقة التقرير مع الأستاذ (Many-to-One)
     public function professor()

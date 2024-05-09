@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
             $table->enum('type', ['is', 'cs', 'ai', 'sc']);
-            $table->string('research_plan')->nullable();
+            $table->string('research_plan')->nullable();         
+            $table->foreignId('head_id')->constrained('heads')->onDelete('cascade')->onUpdate('cascade') ; 
+
             $table->timestamps();
         });
         

@@ -36,9 +36,11 @@ Route::group([
     
 });  
 
+Route::get('/researchplan', [StudentController::class, 'researchplan'])->middleware('auth:student'); 
 Route::get('/showgrade', [StudentController::class, 'showgrade'])->middleware('auth:student'); // عرض تفاصيل سجل مستخدم معين في الكورس
 Route::get('/showcourses', [StudentController::class, 'showcourses'])->middleware('auth:student'); // عرض تفاصيل سجل مستخدم معين في الكورس
 Route::get('/showreports', [StudentController::class, 'showreports'])->middleware('auth:student'); // عرض تفاصيل سجل مستخدم معين في الكورس
+Route::get('/showreport', [StudentController::class, 'showreports'])->middleware('auth:student'); // عرض تفاصيل سجل مستخدم معين في الكورس
 Route::get('/showscheduales/{id}', [StudentController::class, 'showscheduales'])->middleware('auth:student'); 
 
 

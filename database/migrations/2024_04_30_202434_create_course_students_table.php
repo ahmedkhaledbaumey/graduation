@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('student_id')->constrained('students')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('course_id')->constrained('courses')->onDelete('cascade')->onUpdate('cascade');
-            $table->string('grade');
+            $table->string('grade')->nullable();
             $table->enum('firstOrSecond', ['first', 'second']);
             $table->timestamps();
         });

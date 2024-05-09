@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('profs', function (Blueprint $table) {
             $table->id();
-            $table->string('firstName');
-            $table->string('lastName');
-            $table->string('email')->unique();
+            $table->string('name');
+                   $table->string('email')->unique()->nullable();
             $table->string('phone');
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->string('degree');
             $table->string('specialization');
+            $table->foreignId('department_id')->constrained('departments')->onDelete('cascade')->onUpdate('cascade') ; 
             $table->timestamps();
         });
     }

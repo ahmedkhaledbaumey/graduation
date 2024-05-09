@@ -36,7 +36,7 @@ return new class extends Migration
                 $table->enum('time',['first','last']);   
                 $table->enum('marital_status',['married','divorce','other']);   
                 $table->enum('gender',['male','female']);   
-                $table->foreignId('department_id')->constrained('departments')->onDelete('cascade')->onUpdate('cascade') ;//ابقي غيرها من الgui null;
+                $table->foreignId('department_id')->constrained('departments')->onDelete('cascade')->onUpdate('cascade')->nullable() ;//ابقي غيرها من الgui null;
                 $table->timestamps();
             });
     }

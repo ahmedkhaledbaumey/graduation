@@ -9,5 +9,14 @@ class Prof extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['firstName', 'lastName', 'email', 'degree', 'specialization']; // إضافة المزيد حسب الحاجة
+    protected $fillable = ['name', 'email', 'degree', 'specialization', 'department_id']; // إضافة المزيد حسب الحاجة
+   
+   
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+ 
+
+
 }
