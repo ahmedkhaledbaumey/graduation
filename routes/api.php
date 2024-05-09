@@ -8,6 +8,7 @@ use App\Http\Controllers\MastersController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\CouresStudentController;
+use App\Http\Controllers\SchdualController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,21 +34,43 @@ Route::group([
     Route::get('/user-profile', [StudentController::class, 'userProfile']);    
     // Route::get('/upload_data', [StudentController::class, 'uploadData']); 
     
-}); 
+});  
+
+Route::get('/showgrade', [StudentController::class, 'showgrade'])->middleware('auth:student'); // عرض تفاصيل سجل مستخدم معين في الكورس
+Route::get('/showcourses', [StudentController::class, 'showcourses'])->middleware('auth:student'); // عرض تفاصيل سجل مستخدم معين في الكورس
+Route::get('/showreports', [StudentController::class, 'showreports'])->middleware('auth:student'); // عرض تفاصيل سجل مستخدم معين في الكورس
+Route::get('/showscheduales/{id}', [StudentController::class, 'showscheduales'])->middleware('auth:student'); 
+
+
+
+
+
+// عرض تفاصيل سجل مستخدم معين في الكورس
 
 // Department routes
 // Route::apiResource('departments', DepartmentController::class); 
 Route::get('departments', [DepartmentController::class, 'index']);
 Route::post('departments', [DepartmentController::class, 'store']);
 Route::get('departments/{id}', [DepartmentController::class, 'show']);
-Route::put('departments/{id}', [DepartmentController::class, 'update']);
+Route::put('departments/{id}', [DepartmentController::class, 'update']); 
 Route::delete('departments/{id}', [DepartmentController::class, 'destroy']); 
+
+
+
 Route::post('/courses/enroll', [CouresStudentController::class, 'enrollCourses']);
 Route::get('/course-students', [CouresStudentController::class, 'index']); // عرض جميع سجلات المستخدمين في الكورس
 Route::post('/course-students', [CouresStudentController::class, 'store']); // إنشاء سجل جديد لمستخدم في الكورس
 Route::get('/course-students/{courseStudent}', [CouresStudentController::class, 'show']); // عرض تفاصيل سجل مستخدم معين في الكورس
 Route::put('/course-students/{courseStudent}', [CouresStudentController::class, 'update']); // تحديث بيانات سجل مستخدم في الكورس
-Route::delete('/course-students/{courseStudent}', [CouresStudentController::class, 'destroy']); // حذف سجل مستخدم من الكورس 
+Route::delete('/course-students/{courseStudent}', [CouresStudentController::class, 'destroy']); // حذف سجل مستخدم من الكورس  
+
+
+
+Route::get('/schdual', [SchdualController::class, 'index']); // عرض جميع سجلات المستخدمين في الكورس
+Route::post('/schdual', [SchdualController::class, 'store']); // إنشاء سجل جديد لمستخدم في الكورس
+Route::get('/show-schdual/{id}', [SchdualController::class, 'show']); // عرض تفاصيل سجل مستخدم معين في الكورس
+Route::put('/schdual/{id}', [SchdualController::class, 'update']); // تحديث بيانات سجل مستخدم في الكورس
+Route::delete('/schdual/{id}', [SchdualController::class, 'destroy']); // حذف سجل مستخدم من الكورس 
 
 
 // Routes for CourseController

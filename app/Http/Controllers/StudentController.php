@@ -1,10 +1,13 @@
 <?php
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Student;
 use Validator;
+use App\Models\Report;
+use App\Models\Student;
+use App\Models\Schedule;
+use Illuminate\Http\Request;
+use App\Models\CourseStudent;
+use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
 {
@@ -53,17 +56,17 @@ class StudentController extends Controller
             'religion' => 'required|string|between:2,100',
             'job' => 'required|string|between:2,100',
             // 'last_name' => 'required|string|between:2,100',
-            'age' => 'required|string|between:2,100',
-            'SSN' => 'required|string|between:2,100',
+            'age' => 'required|string',
+            'SSN' => 'required|string',
             'phone' => 'required|string|between:2,100',
             'address' => 'required|string',
             'department_id' => 'required|in:1,2,3,4',
-            'gender' => 'required|in:female,male',
-            'marital_status' => 'required|in:married,divorce,other',
-            'idea' => 'required|string',
+            'gender' => 'required|string',
+            'marital_status' => 'required|string',
+            'idea' => 'string',
             'email' => 'required|string|email|max:100|unique:students', // Ensure email uniqueness in the 'students' table
             'type' => 'required|in:' . implode(',', Student::type), // Validate 'type' field against predefined options in the Student model
-            'password' => 'required|string|confirmed|min:6', // Validate password confirmation and length
+            'password' => '|string|confirmed|min:6', // Validate password confirmation and length
         ]);
 
         // If validation fails, return errors
@@ -158,6 +161,33 @@ public function enrollCourses(Request $request)
        'message' => 'Courses successfully enrolled',
        'user' => $student
     ], 201);
-}
+} 
+
+public function showgrade()
+    { 
+        $id = auth()->user()->id  ;
+        $department = CourseStudent::where('student_id', $id)->first();
+        return response()->json($department);
+    }
+public function showcourses()
+    { 
+        $id = auth()->user()->id  ;
+        $department = CourseStudent::where('student_id', $id)->first();
+        return response()->json($department);
+    }
+public function showreports()
+    { 
+        $id = auth()->user()->id  ; 
+        $report = Report::where('student_id', $id)->first(); 
+        // $department = Report::student()->where('student_id', $id)->first();
+        // $reports = Report::findOrFail($id);
+        return response()->json($report);
+    }
+public function showscheduales($id)
+    { 
+        // $id = auth()->user()->id  ;
+        $sceduals = Schedule::findOrFail($id);
+        return response()->json($sceduals);
+    }
 
 }

@@ -118,5 +118,31 @@ class CouresStudentController extends Controller
         $courseStudent->delete();
 
         return response()->json(null, 204);
-    } 
+    }  
+
+
+    public function enrollCourses(Request $request) 
+{ 
+    // Validate the request parameters
+    $validator = Validator::make($request->all(), [
+        'course_ids' => 'required|array', // مصفوفة من معرفات المقررات
+        'course_ids.*' => 'integer|exists:courses,id', // تحقق من وجود كل معرف مقرر في جدول المقررات
+    ]);
+
+    // إذا فشل التحقق، يتم إرجاع أخطاء الصحة
+    if($validator->fails()){
+        return response()->json($validator->errors()->toJson(), 400);
+    }
+
+    // الحصول على الطالب المصادق عليه
+    $student = auth()->user();
+
+    // ربط المقررات المطلوبة بالطالب
+    $student->courses()->sync($request->course_ids);
+
+    return response()->json([
+       'message' => 'Courses successfully enrolled',
+       'user' => $student
+    ], 201);
+}
 }

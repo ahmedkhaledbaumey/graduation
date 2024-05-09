@@ -7,5 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Schedule extends Model
 {
-    use HasFactory;
+    use HasFactory; 
+    protected $fillable = ['content', 'type']; // إضافة المزيد حسب الحاجة
+
 }
