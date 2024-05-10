@@ -66,7 +66,7 @@ class StudentController extends Controller
             'idea' => 'string',
             'email' => 'required|string|email|max:100|unique:students', // Ensure email uniqueness in the 'students' table
             'type' => 'required|in:' . implode(',', Student::type), // Validate 'type' field against predefined options in the Student model
-            'password' => 'required|string|confirmed|min:6', // Validate password confirmation and length
+            'password' => '|string|confirmed|min:6', // Validate password confirmation and length
         ]);
 
         // If validation fails, return errors
