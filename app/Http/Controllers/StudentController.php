@@ -7,6 +7,7 @@ use App\Models\Student;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
 use App\Models\CourseStudent;
+use App\Models\Prof;
 use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
@@ -182,7 +183,7 @@ public function showreports()
        
         return response()->json($report);
     }
-    public function showreport()
+    public function showreportsstudent()
     {
         $student = auth()->user(); // Get the authenticated user (student)
         
@@ -204,7 +205,171 @@ public function showreports()
             return response()->json(['message' => 'Student does not belong to any department.'], 404);
         }
     }
+    public function showreportsprof()
+    {
+        $prof = auth()->user(); // Get the authenticated user (prof)
+        
+        // Check if the student belongs to any department
+        if ($prof->department) {
+            $head_id = $prof->department->head_id;
     
+            // Find the report for the student with the specified head_id
+            $report = Report::where('prof_id', $prof->id)
+                           
+                            ->first();
+    
+            if ($report) {
+                return response()->json($report);
+            } else {
+                return response()->json(['message' => 'Report not found.'], 404);
+            }
+        } else {
+            return response()->json(['message' => 'Student does not belong to any department.'], 404);
+        }
+    }
+    public function showreportshead()
+    {
+        $head = auth()->user(); // Get the authenticated user (head)
+        
+        // Check if the student belongs to any department
+        // if ($head->department) {
+        //     $head_id = $head->department->head_id;
+    
+            // Find the report for the student with the specified head_id
+            $report = Report::where('head_id', $head->id)
+                           
+                            ->first();
+    
+            if ($report) {
+                return response()->json($report);
+            } else {
+                return response()->json(['message' => 'Report not found.'], 404);
+            }
+        // } else {
+        //     return response()->json(['message' => 'Student does not belong to any department.'], 404);
+        // }
+    }
+     
+    public function makereportstudent(Request $request)
+    {
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'content' => 'required|string',
+            'type' => 'required|string',
+            'date' => 'required|date',
+            // 'prof_id' => '|exists:profs,id', // Ensure the provided professor ID exists
+            // 'department_id' => 'required|exists:departments,id', // Ensure the provided department ID exists
+        ]);
+    
+        // Check if validation fails
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+    
+        // Get the authenticated student 
+        $student_id = auth()->user()->id;
+        $student = Student::find($student_id);
+        $head_id = $student->department()->head_id ; 
+    
+        // Create a new Report instance with validated data
+        $report = new Report([
+            'content' => $request->input('content'),
+            'type' => $request->input('type'),
+            'date' => $request->input('date'),
+            // 'prof_id' => $request->input('prof_id'),
+            'head_id' => $head_id,
+            'student_id' => $student->id,
+        ]);
+    
+        // Save the report to the database
+        $report->save();
+    
+        // Return a JSON response indicating success
+        return response()->json([
+            'message' => 'Report created successfully',
+            'report' => $report,
+        ], 201);
+    }
+    public function makereportprof(Request $request)
+    {
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'content' => 'required|string',
+            'type' => 'required|string',
+            'date' => 'required|date',
+            // 'prof_id' => '|exists:profs,id', // Ensure the provided professor ID exists
+            // 'department_id' => 'required|exists:departments,id', // Ensure the provided department ID exists
+        ]);
+    
+        // Check if validation fails
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+    
+        // Get the authenticated student 
+        $prof_id = auth()->user()->id;
+        $prof = Prof::find($prof_id);
+        $head_id = $prof->department()->head_id ; 
+    
+        // Create a new Report instance with validated data
+        $report = new Report([
+            'content' => $request->input('content'),
+            'type' => $request->input('type'),
+            'date' => $request->input('date'),
+            // 'prof_id' => $request->input('prof_id'),
+            'head_id' => $head_id,
+            'prof_id' => $prof->id,
+        ]);
+    
+        // Save the report to the database
+        $report->save();
+    
+        // Return a JSON response indicating success
+        return response()->json([
+            'message' => 'Report created successfully',
+            'report' => $report,
+        ], 201);
+    }
+    // public function makereporthead(Request $request)
+    // {
+    //     // Validate the incoming request data
+    //     $validator = Validator::make($request->all(), [
+    //         'content' => 'required|string',
+    //         'type' => 'required|string',
+    //         'date' => 'required|date',
+    //         // 'prof_id' => '|exists:profs,id', // Ensure the provided professor ID exists
+    //         // 'department_id' => 'required|exists:departments,id', // Ensure the provided department ID exists
+    //     ]);
+    
+    //     // Check if validation fails
+    //     if ($validator->fails()) {
+    //         return response()->json($validator->errors(), 400);
+    //     }
+    
+    //     // Get the authenticated student 
+    //     $prof_id = auth()->user()->id;
+    //     $prof = Prof::find($prof_id);
+    //     $head_id = $prof->department()->head_id ; 
+    
+    //     // Create a new Report instance with validated data
+    //     $report = new Report([
+    //         'content' => $request->input('content'),
+    //         'type' => $request->input('type'),
+    //         'date' => $request->input('date'),
+    //         // 'prof_id' => $request->input('prof_id'),
+    //         'head_id' => $head_id,
+    //         'prof_id' => $prof->id,
+    //     ]);
+    
+    //     // Save the report to the database
+    //     $report->save();
+    
+    //     // Return a JSON response indicating success
+    //     return response()->json([
+    //         'message' => 'Report created successfully',
+    //         'report' => $report,
+    //     ], 201);
+    // }
 public function showscheduales($id)
     { 
         // $id = auth()->user()->id  ;
