@@ -48,41 +48,61 @@ class StudentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(Request $request) {
+    public function register(Request $request)
+    {
         // Validate the request parameters for user registration
         $validator = Validator::make($request->all(), [
+            'enrollment_papers.*' => 'required|image|mimes:png,jpg,jpeg|max:2048', // Validating multiple image uploads
+            'original_bachelors_degree' => 'required|image|mimes:png,jpg,jpeg|max:2048', // Validating multiple image uploads
             'name' => 'required|string|between:2,100',
             'english_name' => 'required|string|between:2,100',
             'nationality' => 'required|string|between:2,100',
             'religion' => 'required|string|between:2,100',
             'job' => 'required|string|between:2,100',
-            // 'last_name' => 'required|string|between:2,100',
-            'age' => 'required|string',
-            'SSN' => 'required|string',
+            'age' => 'required|integer', // Assuming age is an integer
+            'SSN' => 'required|string|between:2,14|unique:students,SSN', // Ensure SSN uniqueness in the 'students' table
             'phone' => 'required|string|between:2,100',
             'address' => 'required|string',
             'department_id' => 'required|in:1,2,3,4',
-            'gender' => 'required|string',
-            'marital_status' => 'required|string',
-            'idea' => 'string',
-            'email' => 'required|string|email|max:100|unique:students', // Ensure email uniqueness in the 'students' table
+            'gender' => 'required|string|in:Male,Female', // Validating against specific genders
+            'marital_status' => 'required|string|in:Single,Married', // Validating against specific marital statuses
+            'idea' => 'nullable|string', // Assuming idea is optional
+            'email' => 'required|string|email|max:100|unique:students,email', // Ensure email uniqueness in the 'students' table
             'type' => 'required|in:' . implode(',', Student::type), // Validate 'type' field against predefined options in the Student model
-            'password' => '|string|confirmed|min:6', // Validate password confirmation and length
+            'password' => 'required|string|confirmed|min:6', // Validate password confirmation and length
         ]);
-
+    
         // If validation fails, return errors
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors()->toJson(), 400);
         }
-
+    
+        // Process enrollment papers (multiple file uploads)
+        if ($request->hasFile('enrollment_papers')) {
+            $enrollmentPapers = [];
+            foreach ($request->file('enrollment_papers') as $file) {
+                $path = $file->store('enrollment_papers'); // Store each file in a directory
+                $enrollmentPapers[] = $path;
+            }
+        }
+        if ($request->hasFile('original_bachelors_degree')) {
+            $original_bachelors_degree = [];
+            foreach ($request->file('original_bachelors_degree') as $file) {
+                $path = $file->store('students'); // Store each file in a directory
+                $original_bachelors_degree[] = $path;
+            }
+        }
+    
         // Create a new user record in the 'students' table
         $user = Student::create(array_merge(
             $validator->validated(),
-            ['password' => bcrypt($request->password)] // Hash the password before storing
-        )); 
-
-        //noti
-        
+            ['password' => bcrypt($request->password)], // Hash the password before storing
+            ['enrollment_papers' => $enrollmentPapers ?? []], // Store uploaded files' paths
+            ['original_bachelors_degree' => $original_bachelors_degree ?? []] // Store uploaded files' paths
+        ));
+    
+        // Send notification or perform other actions here...
+    
         // Return a success response with the created user details
         return response()->json([
             'message' => 'User successfully registered',
@@ -330,46 +350,46 @@ public function showreports()
             'report' => $report,
         ], 201);
     }
-    // public function makereporthead(Request $request)
-    // {
-    //     // Validate the incoming request data
-    //     $validator = Validator::make($request->all(), [
-    //         'content' => 'required|string',
-    //         'type' => 'required|string',
-    //         'date' => 'required|date',
-    //         // 'prof_id' => '|exists:profs,id', // Ensure the provided professor ID exists
-    //         // 'department_id' => 'required|exists:departments,id', // Ensure the provided department ID exists
-    //     ]);
+    public function makereporthead(Request $request)
+    {
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'content' => 'required|string',
+            'type' => 'required|string',
+            'date' => 'required|date',
+            // 'prof_id' => '|exists:profs,id', // Ensure the provided professor ID exists
+            // 'department_id' => 'required|exists:departments,id', // Ensure the provided department ID exists
+        ]);
     
-    //     // Check if validation fails
-    //     if ($validator->fails()) {
-    //         return response()->json($validator->errors(), 400);
-    //     }
+        // Check if validation fails
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
     
-    //     // Get the authenticated student 
-    //     $prof_id = auth()->user()->id;
-    //     $prof = Prof::find($prof_id);
-    //     $head_id = $prof->department()->head_id ; 
+        // Get the authenticated student 
+        $prof_id = auth()->user()->id;
+        $prof = Prof::find($prof_id);
+        $head_id = $prof->department()->head_id ; 
     
-    //     // Create a new Report instance with validated data
-    //     $report = new Report([
-    //         'content' => $request->input('content'),
-    //         'type' => $request->input('type'),
-    //         'date' => $request->input('date'),
-    //         // 'prof_id' => $request->input('prof_id'),
-    //         'head_id' => $head_id,
-    //         'prof_id' => $prof->id,
-    //     ]);
+        // Create a new Report instance with validated data
+        $report = new Report([
+            'content' => $request->input('content'),
+            'type' => $request->input('type'),
+            'date' => $request->input('date'),
+            // 'prof_id' => $request->input('prof_id'),
+            'head_id' => $head_id,
+            // 'prof_id' => $prof->id,
+        ]);
     
-    //     // Save the report to the database
-    //     $report->save();
+        // Save the report to the database
+        $report->save();
     
-    //     // Return a JSON response indicating success
-    //     return response()->json([
-    //         'message' => 'Report created successfully',
-    //         'report' => $report,
-    //     ], 201);
-    // }
+        // Return a JSON response indicating success
+        return response()->json([
+            'message' => 'Report created successfully',
+            'report' => $report,
+        ], 201);
+    }
 public function showscheduales($id)
     { 
         // $id = auth()->user()->id  ;

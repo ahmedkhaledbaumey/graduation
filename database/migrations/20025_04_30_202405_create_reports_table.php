@@ -14,6 +14,7 @@ class CreateReportsTable extends Migration
             $table->id();
             $table->string('content');
             $table->date('date');
+            $table->string('type');
             $table->foreignId('prof_id')->constrained('profs')->onDelete('cascade')->nullable();
             $table->foreignId('student_id')->constrained('students')->onDelete('cascade')->nullable();
             

@@ -2,82 +2,64 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HeadController;
 use App\Http\Controllers\CourseController;
-use App\Http\Controllers\MastersController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\CouresStudentController;
-use App\Http\Controllers\SchdualController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
+// Authentication Routes
+Route::post('/auth/login', [StudentController::class, 'login']);
+Route::post('/auth/register', [StudentController::class, 'register']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Protected Routes (require student authentication)
+Route::middleware('auth:student')->group(function () {
+    // Logout route
+    Route::post('/auth/logout', [StudentController::class, 'logout']);
+    // Refresh token route
+    Route::post('/auth/refresh', [StudentController::class, 'refresh']);
+    // User profile route
+    Route::get('/auth/user-profile', [StudentController::class, 'userProfile']);
+    // Enroll courses route
+    Route::post('/courses/enroll', [StudentController::class, 'enrollCourses']);
+    // Show grade route
+    Route::get('/showgrade', [StudentController::class, 'showgrade']);
+    // Show courses route
+    Route::get('/showcourses', [StudentController::class, 'showcourses']);
+    // Show reports route
+    Route::get('/showreports', [StudentController::class, 'showreports']);
+    // Show specific report for student route
+    Route::get('/showreportsstudent', [StudentController::class, 'showreportsstudent']);
+    // Show specific report for professor route
+    Route::get('/showreportsprof', [StudentController::class, 'showreportsprof']);
+    // Show specific report for department head route
+    Route::get('/showreportshead', [StudentController::class, 'showreportshead']);
+    // Make report by student route
+    Route::post('/makereportstudent', [StudentController::class, 'makereportstudent']);
+    // Make report by professor route
+    Route::post('/makereportprof', [StudentController::class, 'makereportprof']);
+    // Make report by department head route
+    Route::post('/makereporthead', [StudentController::class, 'makereporthead']);
+    // Show schedule details route
+    Route::get('/showscheduales/{id}', [StudentController::class, 'showscheduales']);
+    // Research plan route
+    Route::get('/researchplan', [StudentController::class, 'researchplan']);
+
+    // Course routes
+    Route::get('/courses', [CourseController::class, 'index']); // List all courses
+    Route::post('/courses', [CourseController::class, 'store']); // Create a new course
+    Route::get('/courses/{course}', [CourseController::class, 'show']); // Show details of a specific course
+    Route::put('/courses/{course}', [CourseController::class, 'update']); // Update a course
+    Route::delete('/courses/{course}', [CourseController::class, 'destroy']); // Delete a course
+
+    // Department routes
+    Route::resource('departments', DepartmentController::class)->except(['create', 'edit']); // Resourceful routes for departments
+
+    // Head-specific routes
+    Route::post('/heads/addgrade/{id}', [HeadController::class, 'addGrade']); // Add grade for a course student
+    Route::post('/heads/addaccount/{student_id}', [HeadController::class, 'addAccount']); // Add email account for a student
 });
-Route::group([
-    'prefix' => 'auth/admin'
-], function () {
-    Route::post('/login', [StudentController::class, 'login']);
-    Route::post('/register', [StudentController::class, 'register']);
-    Route::post('/logout', [StudentController::class, 'logout']);
-    Route::post('/refresh', [StudentController::class, 'refresh']);
-    Route::get('/user-profile', [StudentController::class, 'userProfile']);    
-    // Route::get('/upload_data', [StudentController::class, 'uploadData']); 
-    
-});  
 
-Route::get('/researchplan', [StudentController::class, 'researchplan'])->middleware('auth:student'); 
-Route::get('/showgrade', [StudentController::class, 'showgrade'])->middleware('auth:student'); // عرض تفاصيل سجل مستخدم معين في الكورس
-Route::get('/showcourses', [StudentController::class, 'showcourses'])->middleware('auth:student'); // عرض تفاصيل سجل مستخدم معين في الكورس
-Route::get('/showreports', [StudentController::class, 'showreports'])->middleware('auth:student'); // عرض تفاصيل سجل مستخدم معين في الكورس
-Route::get('/showreport', [StudentController::class, 'showreports'])->middleware('auth:student'); // عرض تفاصيل سجل مستخدم معين في الكورس
-Route::get('/showscheduales/{id}', [StudentController::class, 'showscheduales'])->middleware('auth:student'); 
-
-
-
-
-
-// عرض تفاصيل سجل مستخدم معين في الكورس
-
-// Department routes
-// Route::apiResource('departments', DepartmentController::class); 
-Route::get('departments', [DepartmentController::class, 'index']);
-Route::post('departments', [DepartmentController::class, 'store']);
-Route::get('departments/{id}', [DepartmentController::class, 'show']);
-Route::put('departments/{id}', [DepartmentController::class, 'update']); 
-Route::delete('departments/{id}', [DepartmentController::class, 'destroy']); 
-
-
-
-Route::post('/courses/enroll', [CouresStudentController::class, 'enrollCourses']);
-Route::get('/course-students', [CouresStudentController::class, 'index']); // عرض جميع سجلات المستخدمين في الكورس
-Route::post('/course-students', [CouresStudentController::class, 'store']); // إنشاء سجل جديد لمستخدم في الكورس
-Route::get('/course-students/{courseStudent}', [CouresStudentController::class, 'show']); // عرض تفاصيل سجل مستخدم معين في الكورس
-Route::put('/course-students/{courseStudent}', [CouresStudentController::class, 'update']); // تحديث بيانات سجل مستخدم في الكورس
-Route::delete('/course-students/{courseStudent}', [CouresStudentController::class, 'destroy']); // حذف سجل مستخدم من الكورس  
-
-
-
-Route::get('/schdual', [SchdualController::class, 'index']); // عرض جميع سجلات المستخدمين في الكورس
-Route::post('/schdual', [SchdualController::class, 'store']); // إنشاء سجل جديد لمستخدم في الكورس
-Route::get('/show-schdual/{id}', [SchdualController::class, 'show']); // عرض تفاصيل سجل مستخدم معين في الكورس
-Route::put('/schdual/{id}', [SchdualController::class, 'update']); // تحديث بيانات سجل مستخدم في الكورس
-Route::delete('/schdual/{id}', [SchdualController::class, 'destroy']); // حذف سجل مستخدم من الكورس 
-
-
-// Routes for CourseController
-Route::get('/courses', [CourseController::class, 'index']); // عرض جميع المقررات
-Route::post('/courses', [CourseController::class, 'store']); // إنشاء مقرر جديد
-Route::get('/courses/{course}', [CourseController::class, 'show']); // عرض تفاصيل مقرر معين
-Route::put('/courses/{course}', [CourseController::class, 'update']); // تحديث بيانات مقرر معين
-Route::delete('/courses/{course}', [CourseController::class, 'destroy']); // حذف مقرر معين
+// Catch-all route for undefined routes
+Route::fallback(function () {
+    return response()->json(['message' => 'Not Found'], 404);
+});
