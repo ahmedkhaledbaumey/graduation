@@ -41,6 +41,19 @@ class StudentController extends Controller
         }
         return $this->createNewToken($token);
     }
+    public function loginstudent(Request $request){
+        $validator = Validator::make($request->all(), [
+            'account' => 'required|email',
+            'SSN' => 'required|string|min:6',
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+        if (! $token = auth()->attempt($validator->validated())) {
+            return response()->json(['error' => 'invalid datag'], 401);
+        }
+        return $this->createNewToken($token);
+    }
 
     /**
      * Register a new User.
@@ -202,7 +215,8 @@ public function showreports()
         $report = Report::get();
        
         return response()->json($report);
-    }
+    } 
+     
     public function showreportsstudent()
     {
         $student = auth()->user(); // Get the authenticated user (student)
@@ -231,7 +245,7 @@ public function showreports()
         
         // Check if the student belongs to any department
         if ($prof->department) {
-            $head_id = $prof->department->head_id;
+            // $head_id = $prof->department->head_id;
     
             // Find the report for the student with the specified head_id
             $report = Report::where('prof_id', $prof->id)
@@ -395,7 +409,7 @@ public function showscheduales($id)
         // $id = auth()->user()->id  ;
         $sceduals = Schedule::findOrFail($id);
         return response()->json($sceduals);
-    }
+    }  
     public function researchplan()
     {
         // Get the authenticated user (student)
@@ -415,5 +429,7 @@ public function showscheduales($id)
             ], 404);
         }
     }
+}    
+  
 
-}
+

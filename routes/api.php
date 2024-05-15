@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HeadController;
@@ -9,7 +10,9 @@ use App\Http\Controllers\DepartmentController;
 
 // Authentication Routes
 Route::post('/auth/login', [StudentController::class, 'login']);
+Route::post('/auth/loginstudent', [AdminController::class, 'loginstudent']);
 Route::post('/auth/register', [StudentController::class, 'register']);
+Route::post('/addacount/{id}', [HeadController::class, 'addacount']);
 
 // Protected Routes (require student authentication)
 Route::middleware('auth:student')->group(function () {
@@ -43,6 +46,7 @@ Route::middleware('auth:student')->group(function () {
     Route::get('/showscheduales/{id}', [StudentController::class, 'showscheduales']);
     // Research plan route
     Route::get('/researchplan', [StudentController::class, 'researchplan']);
+    Route::post('/researchplan', [StudentController::class, 'researchplan']);
 
     // Course routes
     Route::get('/courses', [CourseController::class, 'index']); // List all courses

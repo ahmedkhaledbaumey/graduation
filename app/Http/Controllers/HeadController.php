@@ -18,15 +18,18 @@ class HeadController extends Controller
     } 
 
     public function addacount($student_id)
-    {
+    {   
         $student = Student::findOrFail($student_id);
     
         // Generate an email account based on student's name and domain
         $student->account = $student->name . "@fci.bu.edu.eg";
-    
+    $status = "accept" ; 
         // Generate a random password (you may adjust this logic as needed)
-        $randomPassword = $student->SSN;
-        $student->password = bcrypt($randomPassword);
+        $randomPassword = $student->SSN; 
+         
+        $student->password = bcrypt($randomPassword); 
+        $student->status = $status; 
+
     
         if ($student->save()) {
             return response()->json(['message' => 'Account added successfully.', 'password' => $randomPassword], 200);

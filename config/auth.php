@@ -50,6 +50,26 @@ return [
             'provider' => 'students',
             'hash' => false,
         ],
+        'head' => [
+            'driver' => 'jwt',
+            'provider' => 'heads',
+            'hash' => false,
+        ],
+        'prof' => [
+            'driver' => 'jwt',
+            'provider' => 'profs',
+            'hash' => false,
+        ],
+        'employee' => [
+            'driver' => 'jwt',
+            'provider' => 'employees',
+            'hash' => false,
+        ],
+        'vice_dean' => [
+            'driver' => 'jwt',
+            'provider' => 'vice_deans',
+            'hash' => false,
+        ],
     ],
 
     /*
@@ -74,7 +94,23 @@ return [
         'students' => [
             'driver' => 'eloquent',
             'model' => App\Models\Student::class,
-        ]
+        ] , 
+        'heads' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Head::class,
+        ] , 
+        'profs' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Prof::class,
+        ] , 
+        'employees' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Employee::class,
+        ] ,
+        'vice_deans' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\ViceDean::class,
+        ] ,
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
