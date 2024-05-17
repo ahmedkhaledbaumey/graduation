@@ -8,11 +8,20 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\DepartmentController;
 
+
+
 // Authentication Routes
-Route::post('/auth/login', [StudentController::class, 'login']);
-Route::post('/auth/loginstudent', [AdminController::class, 'loginstudent']);
-Route::post('/auth/register', [StudentController::class, 'register']);
-Route::post('/addacount/{id}', [HeadController::class, 'addacount']);
+Route::post('auth/loginstudent', [StudentController::class, 'loginstudent']);
+Route::post('/loginhead', [StudentController::class, 'loginhead']);
+Route::post('/loginemployee', [StudentController::class, 'loginemployee']);
+Route::post('/loginvice', [StudentController::class, 'loginvice']);
+Route::post('/loginprof', [StudentController::class, 'loginprof']);
+Route::post('/register', [StudentController::class, 'register']);
+Route::post('/addstudent', [HeadController::class, 'addstudent']);
+Route::post('/addvice', [HeadController::class, 'addvice']);
+Route::post('/addemployee', [HeadController::class, 'addemployee']);
+Route::post('/addprof', [HeadController::class, 'addprof']);
+Route::post('/addhead', [HeadController::class, 'addhead']);
 
 // Protected Routes (require student authentication)
 Route::middleware('auth:student')->group(function () {

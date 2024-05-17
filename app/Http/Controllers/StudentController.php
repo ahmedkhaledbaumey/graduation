@@ -428,7 +428,48 @@ public function showscheduales($id)
                 'error' => 'Student does not belong to any department.',
             ], 404);
         }
+    } 
+    public function updateAccount(Request $request)
+    {
+        // Validate the request data
+        $validated = $request->validate([
+            'email' => 'required|email|unique:students,email,' . Auth::user()->id,
+            'name' => 'required|string|max:255',
+            'password' => 'required|string|confirmed|min:6', // Validate password confirmation and length
+        ]);
+
+        // Retrieve the user from the database
+        $user = Student::where('email', $validated['email'])->first();
+
+        // Check if any data has changed
+        if ($user->name === $validated['name'] && $user->email === $validated['email']) {
+            return response()->json([
+                'message' => 'No changes were made.',
+                'data' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'password' => $user->password,
+                ],
+            ]);
+        }
+
+        // Update the user's data
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+
+        // Save the changes
+        $user->save();
+
+        // Return a success message
+        return response()->json([
+            'message' => 'Account updated successfully.',
+            'data' => [
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
+        ]);
     }
+
 }    
   
 

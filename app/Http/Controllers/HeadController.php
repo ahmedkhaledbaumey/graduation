@@ -17,7 +17,7 @@ class HeadController extends Controller
         return response()->json(['message' => 'Grade Added Successfully.'], 404);
     } 
 
-    public function addacount($student_id)
+    public function addstudent($student_id)
     {   
         $student = Student::findOrFail($student_id);
     
