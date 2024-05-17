@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
 
-class SchdualController extends Controller
+class ScheduleController extends Controller
 
 {
     /**

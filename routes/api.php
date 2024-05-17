@@ -1,27 +1,23 @@
 <?php
 
-use App\Http\Controllers\AdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HeadController;
-use App\Http\Controllers\CourseController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\DepartmentController;
-
-
+use App\Http\Controllers\HeadController;
+use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\AdminController;
 
 // Authentication Routes
-Route::post('auth/loginstudent', [StudentController::class, 'loginstudent']);
-Route::post('/loginhead', [StudentController::class, 'loginhead']);
-Route::post('/loginemployee', [StudentController::class, 'loginemployee']);
-Route::post('/loginvice', [StudentController::class, 'loginvice']);
-Route::post('/loginprof', [StudentController::class, 'loginprof']);
-Route::post('/register', [StudentController::class, 'register']);
-Route::post('/addstudent', [HeadController::class, 'addstudent']);
-Route::post('/addvice', [HeadController::class, 'addvice']);
-Route::post('/addemployee', [HeadController::class, 'addemployee']);
-Route::post('/addprof', [HeadController::class, 'addprof']);
-Route::post('/addhead', [HeadController::class, 'addhead']);
+Route::post('/auth/login', [AdminController::class, 'loginstudent']);
+Route::post('/auth/register', [StudentController::class, 'register']);
+Route::post('/auth/user-profile/{guard_name}', [StudentController::class, 'userProfile']);
+// Admin Authentication Routes
+Route::post('/auth/login/head', [AdminController::class, 'loginhead']);
+Route::post('/auth/login/prof', [AdminController::class, 'loginprof']);
+Route::post('/auth/login/employee', [AdminController::class, 'loginemployee']);
+Route::post('/auth/login/vice', [AdminController::class, 'loginvice']);
 
 // Protected Routes (require student authentication)
 Route::middleware('auth:student')->group(function () {
@@ -55,7 +51,6 @@ Route::middleware('auth:student')->group(function () {
     Route::get('/showscheduales/{id}', [StudentController::class, 'showscheduales']);
     // Research plan route
     Route::get('/researchplan', [StudentController::class, 'researchplan']);
-    Route::post('/researchplan', [StudentController::class, 'researchplan']);
 
     // Course routes
     Route::get('/courses', [CourseController::class, 'index']); // List all courses
@@ -63,13 +58,50 @@ Route::middleware('auth:student')->group(function () {
     Route::get('/courses/{course}', [CourseController::class, 'show']); // Show details of a specific course
     Route::put('/courses/{course}', [CourseController::class, 'update']); // Update a course
     Route::delete('/courses/{course}', [CourseController::class, 'destroy']); // Delete a course
+});
 
-    // Department routes
-    Route::resource('departments', DepartmentController::class)->except(['create', 'edit']); // Resourceful routes for departments
+// Protected Routes (require student or head authentication)
+Route::middleware('auth:student,head')->group(function () {
+    Route::post('/addhead', [AdminController::class, 'addhead']);
+});
 
-    // Head-specific routes
-    Route::post('/heads/addgrade/{id}', [HeadController::class, 'addGrade']); // Add grade for a course student
-    Route::post('/heads/addaccount/{student_id}', [HeadController::class, 'addAccount']); // Add email account for a student
+// Protected Routes (require different admin authentications)
+Route::middleware('auth:head')->group(function () {
+    Route::post('/addprof', [AdminController::class, 'addprof']);
+    Route::post('/addemployee', [AdminController::class, 'addemployee']);
+    Route::post('/addvice', [AdminController::class, 'addvice']);
+    Route::put('/updateAccounthead', [AdminController::class, 'updateAccounthead']);
+    Route::delete('/deletehead/{id}', [AdminController::class, 'deletehead']);
+});
+Route::middleware('auth:prof')->group(function () {
+    Route::put('/updateAccountprof', [AdminController::class, 'updateAccountprof']);
+    Route::delete('/deleteprof/{id}', [AdminController::class, 'deleteprof']);
+});
+Route::middleware('auth:employee')->group(function () {
+    Route::put('/updateAccountemployee', [AdminController::class, 'updateAccountemployee']);
+    Route::delete('/deleteemployee/{id}', [AdminController::class, 'deleteemployee']);
+});
+Route::middleware('auth:vice_dean')->group(function () {
+    Route::put('/updateAccountvice', [AdminController::class, 'updateAccountvice']);
+    Route::delete('/deletevice/{id}', [AdminController::class, 'deletevice']);
+});
+
+// Schedule routes
+Route::middleware('auth:student')->group(function () {
+    Route::get('/schedules', [ScheduleController::class, 'index']);
+    Route::post('/schedules', [ScheduleController::class, 'store']);
+    Route::get('/schedules/{id}', [ScheduleController::class, 'show']);
+    Route::put('/schedules/{id}', [ScheduleController::class, 'update']);
+    Route::delete('/schedules/{id}', [ScheduleController::class, 'destroy']);
+});
+
+// Department routes
+Route::middleware('auth:student')->group(function () {
+    Route::get('/departments', [DepartmentController::class, 'index']);
+    Route::post('/departments', [DepartmentController::class, 'store']);
+    Route::get('/departments/{id}', [DepartmentController::class, 'show']);
+    Route::put('/departments/{id}', [DepartmentController::class, 'update']);
+    Route::delete('/departments/{id}', [DepartmentController::class, 'destroy']);
 });
 
 // Catch-all route for undefined routes
