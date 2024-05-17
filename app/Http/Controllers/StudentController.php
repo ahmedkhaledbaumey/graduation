@@ -161,7 +161,7 @@ class StudentController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->guard("student")->factory()->getTTL() * 60,
+            'expires_in' => auth()->guard("student")->factory()->getTTL() * 600000000000000000,
             // 'user' => auth()->user() // Return the authenticated user's data in the response
         ]);
     } 

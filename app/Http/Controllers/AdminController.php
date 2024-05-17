@@ -32,7 +32,7 @@ class AdminController extends Controller
     
         return $this->createNewToken($token);
     }
-    public function loginhead(Request $request)
+    public function loginhead(Request $request ,$guard)
     {
         $validator = Validator::make($request->all(), [
             'account' => 'required|email',
@@ -43,63 +43,63 @@ class AdminController extends Controller
             return response()->json($validator->errors(), 422);
         }
     
-        if (! $token = auth()->guard('head')->attempt($validator->validated())) {
+        if (! $token = auth()->guard($guard)->attempt($validator->validated())) {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
     
         return $this->createNewToken($token);
     }
-    public function loginemployee(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'account' => 'required|email',
-            'password' => 'required|string|min:6',
-        ]);
+    // public function loginemployee(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'account' => 'required|email',
+    //         'password' => 'required|string|min:6',
+    //     ]);
     
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json($validator->errors(), 422);
+    //     }
     
-        if (! $token = auth()->guard('employee')->attempt($validator->validated())) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
-        }
+    //     if (! $token = auth()->guard('employee')->attempt($validator->validated())) {
+    //         return response()->json(['error' => 'Invalid credentials'], 401);
+    //     }
     
-        return $this->createNewToken($token);
-    }
-    public function loginvice(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'account' => 'required|email',
-            'password' => 'required|string|min:6',
-        ]);
+    //     return $this->createNewToken($token);
+    // }
+    // public function loginvice(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'account' => 'required|email',
+    //         'password' => 'required|string|min:6',
+    //     ]);
     
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json($validator->errors(), 422);
+    //     }
     
-        if (! $token = auth()->guard('vice_dean')->attempt($validator->validated())) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
-        }
+    //     if (! $token = auth()->guard('vice_dean')->attempt($validator->validated())) {
+    //         return response()->json(['error' => 'Invalid credentials'], 401);
+    //     }
     
-        return $this->createNewToken($token);
-    }
-    public function loginprof(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'account' => 'required|email',
-            'password' => 'required|string|min:6',
-        ]);
+    //     return $this->createNewToken($token);
+    // }
+    // public function loginprof(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'account' => 'required|email',
+    //         'password' => 'required|string|min:6',
+    //     ]);
     
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json($validator->errors(), 422);
+    //     }
     
-        if (! $token = auth()->guard('prof')->attempt($validator->validated())) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
-        }
+    //     if (! $token = auth()->guard('prof')->attempt($validator->validated())) {
+    //         return response()->json(['error' => 'Invalid credentials'], 401);
+    //     }
     
-        return $this->createNewToken($token);
-    }
+    //     return $this->createNewToken($token);
+    // }
 
     public function addhead(Request $request)
     {

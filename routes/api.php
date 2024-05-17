@@ -10,14 +10,14 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AdminController;
 
 // Authentication Routes
-Route::post('/auth/login', [AdminController::class, 'loginstudent']);
+Route::post('/auth/loginstudent', [AdminController::class, 'loginstudent']);
 Route::post('/auth/register', [StudentController::class, 'register']);
-Route::post('/auth/user-profile/{guard_name}', [StudentController::class, 'userProfile']);
+Route::post('/auth/user-profile/{guard_name}', [AdminController::class, 'userProfile']);
 // Admin Authentication Routes
-Route::post('/auth/login/head', [AdminController::class, 'loginhead']);
-Route::post('/auth/login/prof', [AdminController::class, 'loginprof']);
-Route::post('/auth/login/employee', [AdminController::class, 'loginemployee']);
-Route::post('/auth/login/vice', [AdminController::class, 'loginvice']);
+Route::post('/auth/login/{guard_name}', [AdminController::class, 'login']);
+// Route::post('/auth/login/prof', [AdminController::class, 'loginprof']);
+// Route::post('/auth/login/employee', [AdminController::class, 'loginemployee']);
+// Route::post('/auth/login/vice', [AdminController::class, 'loginvice']);
 
 // Protected Routes (require student authentication)
 Route::middleware('auth:student')->group(function () {
@@ -98,7 +98,7 @@ Route::middleware('auth:student')->group(function () {
 // Department routes
 Route::middleware('auth:student')->group(function () {
     Route::get('/departments', [DepartmentController::class, 'index']);
-    Route::post('/departments', [DepartmentController::class, 'store']);
+    Route::post('/departments', [DepartmentController::class, 'store']);+
     Route::get('/departments/{id}', [DepartmentController::class, 'show']);
     Route::put('/departments/{id}', [DepartmentController::class, 'update']);
     Route::delete('/departments/{id}', [DepartmentController::class, 'destroy']);

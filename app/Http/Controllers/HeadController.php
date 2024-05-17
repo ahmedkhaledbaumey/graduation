@@ -42,7 +42,11 @@ class HeadController extends Controller
 
     
         if ($student->save()) {
-            return response()->json(['message' => 'Account added successfully.', 'password' => $randomPassword], 200);
+            return response()->json(['message' => 'Account added successfully.',
+             'password' => $randomPassword
+,             'email' => $student->account
+            ],
+              200);
         } else {
             return response()->json(['error' => 'Failed to add account.'], 400);
         }
