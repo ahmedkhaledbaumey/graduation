@@ -70,6 +70,11 @@ return [
             'provider' => 'vice_deans',
             'hash' => false,
         ],
+        'admin' => [
+            'driver' => 'jwt',
+            'provider' => 'admin',
+            'hash' => false,
+        ],
     ],
 
     /*
@@ -92,6 +97,10 @@ return [
     'providers' => [
        
         'students' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Student::class,
+        ] , 
+        'admin' => [
             'driver' => 'eloquent',
             'model' => App\Models\Student::class,
         ] , 

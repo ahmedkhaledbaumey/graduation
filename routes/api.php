@@ -29,29 +29,30 @@ Route::middleware('auth:student')->group(function () {
     // User profile route
     Route::get('/auth/user-profile', [StudentController::class, 'userProfile']);
     // Enroll courses route
-    Route::post('/courses/enroll', [StudentController::class, 'enrollCourses']);
+    Route::post('/courses/enroll', [StudentController::class, 'enrollCourses'])->middleware('auth:student');
     // Show grade route
-    Route::get('/showgrade', [StudentController::class, 'showgrade']);
+    Route::get('/showgrade', [StudentController::class, 'showgrade'])->middleware('auth:stident');
     // Show courses route
-    Route::get('/showcourses', [StudentController::class, 'showcourses']);
+    Route::get('/showcourses', [StudentController::class, 'showcourses'])->middleware('auth:student');
     // Show reports route
-    Route::get('/showreports', [StudentController::class, 'showreports']);
+    Route::get('/showreports', [StudentController::class, 'showreports'])->middleware('auth:head');
     // Show specific report for student route
-    Route::get('/showreportsstudent', [StudentController::class, 'showreportsstudent']);
+    Route::get('/showreportsstudent', [StudentController::class, 'showreportsstudent'])->middleware('auth:student');
     // Show specific report for professor route
-    Route::get('/showreportsprof', [StudentController::class, 'showreportsprof']);
+    Route::get('/showreportsprof', [StudentController::class, 'showreportsprof'])->middleware('auth:prof');
     // Show specific report for department head route
-    Route::get('/showreportshead', [StudentController::class, 'showreportshead']);
+    Route::get('/showreportshead', [StudentController::class, 'showreportshead'])->middleware('auth:head');
     // Make report by student route
-    Route::post('/makereportstudent', [StudentController::class, 'makereportstudent']);
+    Route::post('/makereportstudent', [StudentController::class, 'makereportstudent'])->middleware('auth:student');
     // Make report by professor route
-    Route::post('/makereportprof', [StudentController::class, 'makereportprof']);
+    Route::post('/makereportprof', [StudentController::class, 'makereportprof'])->middleware('auth:prof');
     // Make report by department head route
-    Route::post('/makereporthead', [StudentController::class, 'makereporthead']);
+    Route::post('/makereporthead', [StudentController::class, 'makereporthead'])->middleware('auth:head');
     // Show schedule details route
-    Route::get('/showscheduales/{id}', [StudentController::class, 'showscheduales']);
+    Route::get('/showscheduales/{id}', [StudentController::class, 'showscheduales'])->middleware('auth:student');
     // Research plan route
-    Route::get('/researchplan', [StudentController::class, 'researchplan']);
+    Route::get('/researchplan', [StudentController::class, 'researchplan'])->middleware('auth:student');
+    Route::get('/researchplan', [StudentController::class, 'researchplan'])->middleware('auth:student');
 
     // Course routes
     Route::get('/courses', [CourseController::class, 'index']); // List all courses
@@ -62,12 +63,10 @@ Route::middleware('auth:student')->group(function () {
 });
 
 // Protected Routes (require student or head authentication)
-Route::middleware('auth:student,head')->group(function () {
-    Route::post('/addhead', [AdminController::class, 'addhead']);
-});
 
 // Protected Routes (require different admin authentications)
-Route::middleware('auth:head')->group(function () {
+Route::middleware('auth:admin')->group(function () {
+    Route::post('/addhead', [AdminController::class, 'addhead']);
     Route::post('/addprof', [AdminController::class, 'addprof']);
     Route::post('/addemployee', [AdminController::class, 'addemployee']);
     Route::post('/addvice', [AdminController::class, 'addvice']);
@@ -88,7 +87,7 @@ Route::middleware('auth:vice_dean')->group(function () {
 });
 
 // Schedule routes
-Route::middleware('auth:student')->group(function () {
+Route::middleware('auth:employee')->group(function () {
     Route::get('/schedules', [ScheduleController::class, 'index']);
     Route::post('/schedules', [ScheduleController::class, 'store']);
     Route::get('/schedules/{id}', [ScheduleController::class, 'show']);
@@ -97,7 +96,7 @@ Route::middleware('auth:student')->group(function () {
 });
 
 // Department routes
-Route::middleware('auth:student')->group(function () {
+Route::middleware('auth:employee')->group(function () {
     Route::get('/departments', [DepartmentController::class, 'index']);
     Route::post('/departments', [DepartmentController::class, 'store']);
     Route::get('/departments/{id}', [DepartmentController::class, 'show']);

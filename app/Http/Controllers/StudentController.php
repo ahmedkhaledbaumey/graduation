@@ -7,6 +7,7 @@ use App\Models\Student;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
 use App\Models\CourseStudent;
+use App\Models\Department;
 use App\Models\Prof;
 use Illuminate\Support\Facades\Auth;
 
@@ -428,6 +429,19 @@ public function showscheduales($id)
                 'error' => 'Student does not belong to any department.',
             ], 404);
         }
+    } 
+    public function addresearchplan($researchPlan)
+    {
+        // Get the authenticated user (student)
+        $head = request()->user()->id; 
+        $department = Department::where('head_id', $head); 
+        $department->research_plan = $researchPlan;
+
+        // Check if the student belongs to any department
+      
+            return response()->json([
+                'message' => 'addResearch success',
+            ], 404);
     } 
     public function updateAccount(Request $request)
     {
