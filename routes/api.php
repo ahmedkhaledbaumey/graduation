@@ -11,6 +11,7 @@ use App\Http\Controllers\AdminController;
 
 // Authentication Routes
 Route::post('/auth/loginstudent', [AdminController::class, 'loginstudent']);
+Route::post('/auth/login', [StudentController::class, 'login']);
 Route::post('/auth/register', [StudentController::class, 'register']);
 Route::post('/auth/user-profile/{guard_name}', [AdminController::class, 'userProfile']);
 // Admin Authentication Routes
