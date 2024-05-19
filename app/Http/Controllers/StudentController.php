@@ -73,16 +73,16 @@ class StudentController extends Controller
             'religion' => 'required|string|between:2,100',
             'job' => 'required|string|between:2,100',
             'age' => 'required|integer', // Assuming age is an integer
-            'SSN' => 'required|string|between:2,14|unique:students,SSN', // Ensure SSN uniqueness in the 'students' table
+            'SSN' => 'required|string|between:2,100|unique:students,SSN', // Ensure SSN uniqueness in the 'students' table
             'phone' => 'required|string|between:2,100',
             'address' => 'required|string',
             'department_id' => 'required|in:1,2,3,4',
-            'gender' => 'required|string|in:Male,Female', // Validating against specific genders
-            'marital_status' => 'required|string|in:Single,Married', // Validating against specific marital statuses
+            'gender' => 'required|string|', // Validating against specific genders
+            'marital_status' => 'required|string|', // Validating against specific marital statuses
             'idea' => 'nullable|string', // Assuming idea is optional
             'email' => 'required|string|email|max:100|unique:students,email', // Ensure email uniqueness in the 'students' table
             'type' => 'required|in:' . implode(',', Student::type), // Validate 'type' field against predefined options in the Student model
-            'password' => 'required|string|confirmed|min:6', // Validate password confirmation and length
+            // 'password' => 'required|string|confirmed|min:6', // Validate password confirmation and length
         ]);
     
         // If validation fails, return errors
