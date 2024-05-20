@@ -2,13 +2,14 @@
 namespace App\Http\Controllers;
 
 use Validator;
+use App\Models\Prof;
 use App\Models\Report;
 use App\Models\Student;
 use App\Models\Schedule;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use App\Models\CourseStudent;
-use App\Models\Department;
-use App\Models\Prof;
+use App\Models\StudentPhotos;
 use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
@@ -67,7 +68,7 @@ class StudentController extends Controller
         // Validate the request parameters for user registration
         $validator = Validator::make($request->all(), [
             'enrollment_papers.*' => 'required|image|mimes:png,jpg,jpeg|max:2048', // Validating multiple image uploads
-            'original_bachelors_degree' => 'required|image|mimes:png,jpg,jpeg|max:2048', // Validating multiple image uploads
+            'original_bachelors_degree' => 'required|image|mimes:png,jpg,jpeg|max:2048', // Validating the original bachelor's degree
             'name' => 'required|string|between:2,100',
             'english_name' => 'required|string|between:2,100',
             'nationality' => 'required|string|between:2,100',
@@ -78,12 +79,11 @@ class StudentController extends Controller
             'phone' => 'required|string|between:2,100',
             'address' => 'required|string',
             'department_id' => 'required|in:1,2,3,4',
-            'gender' => 'required|string|', // Validating against specific genders
-            'marital_status' => 'required|string|', // Validating against specific marital statuses
+            'gender' => 'required|string', // Validating against specific genders
+            'marital_status' => 'required|string', // Validating against specific marital statuses
             'idea' => 'nullable|string', // Assuming idea is optional
             'email' => 'required|string|email|max:100|unique:students,email', // Ensure email uniqueness in the 'students' table
             'type' => 'required|in:' . implode(',', Student::type), // Validate 'type' field against predefined options in the Student model
-            // 'password' => 'required|string|confirmed|min:6', // Validate password confirmation and length
         ]);
     
         // If validation fails, return errors
@@ -99,30 +99,34 @@ class StudentController extends Controller
                 $enrollmentPapers[] = $path;
             }
         }
+    
+        // Process original bachelor's degree (single file upload)
         if ($request->hasFile('original_bachelors_degree')) {
-            $original_bachelors_degree = [];
-            foreach ($request->file('original_bachelors_degree') as $file) {
-                $path = $file->store('students'); // Store each file in a directory
-                $original_bachelors_degree[] = $path;
-            }
+            $originalBachelorsDegree = $request->file('original_bachelors_degree')->store('original_bachelors_degree'); // Store the file in a directory
         }
     
-        // Create a new user record in the 'students' table
-        $user = Student::create(array_merge(
+        // Create a new student record in the 'students' table
+        $student = Student::create(array_merge(
             $validator->validated(),
-            ['password' => bcrypt($request->password)], // Hash the password before storing
-            ['enrollment_papers' => $enrollmentPapers ?? []], // Store uploaded files' paths
-            ['original_bachelors_degree' => $original_bachelors_degree ?? []] // Store uploaded files' paths
+            ['password' => bcrypt($request->password)]
         ));
     
-        // Send notification or perform other actions here...
+        // Create a new student_photos record in the 'student_photos' table
+        $studentPhotos = new StudentPhotos([
+            'student_id' => $student->id,
+            'enrollment_papers' => json_encode($enrollmentPapers ?? []), // Store uploaded files' paths as JSON
+            'original_bachelors_degree' => $originalBachelorsDegree ?? null, // Store the uploaded file's path
+        ]);
+        $studentPhotos->save();
     
-        // Return a success response with the created user details
+        // Return a success response with the created student details
         return response()->json([
             'message' => 'User successfully registered',
-            'user' => $user
+            'student' => $student,
+            'student_photos' => $studentPhotos
         ], 201);
     }
+    
 
     /**
      * Log out the authenticated user (Invalidate the token).

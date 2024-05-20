@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -7,11 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class Student  extends Authenticatable implements JWTSubject
+class Student extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
-
-    // protected $table = 'students';
 
     // Constants defining type, degree, and level options
     const type = ['moed', 'external'];
@@ -19,7 +18,7 @@ class Student  extends Authenticatable implements JWTSubject
     const level = ['first_level', 'second_level'];
 
     protected $fillable = [
-        'type', 'idea', 'address', 'phone', 'SSN',  'name','english_name', 'email', 'age', 'password','department_id'
+        'type', 'idea', 'address', 'phone', 'SSN', 'name', 'english_name', 'email', 'age', 'password', 'department_id'
     ];
 
     protected $hidden = [
@@ -29,8 +28,8 @@ class Student  extends Authenticatable implements JWTSubject
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-    ]; 
-    
+    ];
+
     // علاقة الطالب مع القسم (Many-to-One)
     public function department()
     {
@@ -54,6 +53,12 @@ class Student  extends Authenticatable implements JWTSubject
     public function seminars()
     {
         return $this->hasMany(Seminar::class);
+    }
+
+    // علاقة الطالب مع الصور (One-to-One)
+    public function studentPhotos()
+    {
+        return $this->hasOne(StudentPhotos::class);
     }
 
     /**
