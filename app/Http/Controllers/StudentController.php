@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use Validator;
+use App\Models\Head;
 use App\Models\Prof;
 use App\Models\Report;
 use App\Models\Student;
@@ -21,7 +22,7 @@ class StudentController extends Controller
      */
     public function __construct() {
         // Apply middleware to protect routes, except for login and register
-        $this->middleware('auth:student', ['except' => ['login', 'register']]);
+        $this->middleware('auth:student', ['except' => ['login', 'register' ,'makereporthead']]);
     }
 
     /**
@@ -220,7 +221,8 @@ public function showgrade()
 public function showcourses()
     { 
         $id = auth()->user()->id  ;
-        $department = CourseStudent::where('student_id', $id)->first();
+        $department[] = CourseStudent::where('student_id', $id)->get(); 
+
         return response()->json($department);
     }
 public function showreports()
@@ -385,8 +387,7 @@ public function showreports()
             'content' => 'required|string',
             'type' => 'required|string',
             'date' => 'required|date',
-            // 'prof_id' => '|exists:profs,id', // Ensure the provided professor ID exists
-            // 'department_id' => 'required|exists:departments,id', // Ensure the provided department ID exists
+          
         ]);
     
         // Check if validation fails
@@ -394,10 +395,8 @@ public function showreports()
             return response()->json($validator->errors(), 400);
         }
     
-        // Get the authenticated student 
-        $prof_id = auth()->user()->id;
-        $prof = Prof::find($prof_id);
-        $head_id = $prof->department()->head_id ; 
+        // Get the authenticated user (assuming it's a head of department)
+        $head_id = auth()->user()->id;
     
         // Create a new Report instance with validated data
         $report = new Report([
@@ -406,7 +405,6 @@ public function showreports()
             'date' => $request->input('date'),
             // 'prof_id' => $request->input('prof_id'),
             'head_id' => $head_id,
-            // 'prof_id' => $prof->id,
         ]);
     
         // Save the report to the database
@@ -418,6 +416,7 @@ public function showreports()
             'report' => $report,
         ], 201);
     }
+    
 public function showscheduales($id)
     { 
         // $id = auth()->user()->id  ;

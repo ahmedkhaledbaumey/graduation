@@ -121,7 +121,11 @@ class AdminController extends Controller
         // Create a new user record in the 'students' table
         $user = Head::create(array_merge(
             $validator->validated(),
-            ['password' => bcrypt($request->password)], // Hash the password before storing
+            ['password' => bcrypt($request->password) , 
+            'name' => $request->name , 
+            'email' => $request->email 
+
+        ], // Hash the password before storing
           
         ));
     

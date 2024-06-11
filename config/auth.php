@@ -102,7 +102,7 @@ return [
         ] , 
         'admin' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Student::class,
+            'model' => App\Models\Admin::class,
         ] , 
         'heads' => [
             'driver' => 'eloquent',
