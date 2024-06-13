@@ -56,13 +56,14 @@ Route::middleware('auth:student')->group(function () {
     Route::get('/researchplan', [StudentController::class, 'researchplan'])->middleware('auth:student');
     Route::get('/researchplan', [StudentController::class, 'researchplan'])->middleware('auth:student');
     
+    });
     // Course routes
     Route::get('/courses', [CourseController::class, 'index']); // List all courses
     Route::post('/courses', [CourseController::class, 'store']); // Create a new course
+    Route::post('/courses/addmatrial/{id}', [CourseController::class, 'addmatrial']); // Create a new course
     Route::get('/courses/{course}', [CourseController::class, 'show']); // Show details of a specific course
     Route::put('/courses/{course}', [CourseController::class, 'update']); // Update a course
     Route::delete('/courses/{course}', [CourseController::class, 'destroy']); // Delete a course
-    });
     
     // Protected Routes (require student or head authentication)
     

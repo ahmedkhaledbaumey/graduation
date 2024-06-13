@@ -41,6 +41,21 @@ class CourseController extends Controller
 
         return response()->json($course, 201);
     }
+    public function addmatrial(Request $request  , $id)
+    {
+        // Validate request data
+        $validatedData = $request->validate([
+           
+            'material' => 'string|nullable',
+         
+        ]);
+
+      $course = Course::findOrFail($id) ;   
+       $course->material = $validatedData["material"] ;  
+       $course->save() ; 
+       
+        return response()->json($course, 201);
+    }
 
     /**
      * Display the specified resource.

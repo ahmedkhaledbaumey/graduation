@@ -64,78 +64,72 @@ class StudentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(Request $request)
-    {
-        // Validate the request parameters for user registration
-        $validator = Validator::make($request->all(), [
-            'enrollment_papers.*' => 'required|image|mimes:png,jpg,jpeg|max:2048', // Validating multiple image uploads
-            'original_bachelors_degree' => 'required|image|mimes:png,jpg,jpeg|max:2048', // Validating the original bachelor's degree
-            'name' => 'required|string|between:2,100',
-            'english_name' => 'required|string|between:2,100',
-            'nationality' => 'required|string|between:2,100',
-            'religion' => 'required|string|between:2,100',
-            'job' => 'required|string|between:2,100',
-            'age' => 'required|integer', // Assuming age is an integer
-            'SSN' => 'required|string|between:2,100|unique:students,SSN', // Ensure SSN uniqueness in the 'students' table
-            'phone' => 'required|string|between:2,100',
-            'address' => 'required|string',
-            'department_id' => 'required|in:1,2,3,4',
-            'gender' => 'required|string', // Validating against specific genders
-            'marital_status' => 'required|string', // Validating against specific marital statuses
-            'idea' => 'nullable|string', // Assuming idea is optional
-            'email' => 'required|string|email|max:100|unique:students,email', // Ensure email uniqueness in the 'students' table
-            'type' => 'required|in:' . implode(',', Student::type), // Validate 'type' field against predefined options in the Student model
-        ]);
-    
-        // If validation fails, return errors
-        if ($validator->fails()) {
-            return response()->json($validator->errors()->toJson(), 400);
-        }
-    
-        // Process enrollment papers (multiple file uploads)
-        // if ($request->hasFile('enrollment_papers')) {
-        //     $enrollmentPapers = [];
-        //     foreach ($request->file('enrollment_papers') as $file) {
-        //         $path = $file->store('student/enrollment_papers'); // Store each file in a directory
-        //         $enrollmentPapers[] = $path;
-        //     }
-        // } 
-        if ($request->has('enrollment_papers')) {
-            foreach ($request['enrollment_papers'] as $photoData) {
-                $imageName =[]  ; 
-                 
-                $imageName[]  = $photoData['photo']->store('student/enrollment_papers'); // You can change the storage path as needed
-             
-            }
-        }
-    
-        // Process original bachelor's degree (single file upload)
-        if ($request->hasFile('original_bachelors_degree')) {
-            $originalBachelorsDegree = $request->file('original_bachelors_degree')->store('student/original_bachelors_degree'); // Store the file in a directory
-        }
-    
-        // Create a new student record in the 'students' table
-        $student = Student::create(array_merge(
-            $validator->validated(),
-            ['password' => bcrypt($request->password)]
-        ));
-    
-        // Create a new student_photos record in the 'student_photos' table
-        $studentPhotos = new StudentPhotos([
-            'student_id' => $student->id,
-            // 'enrollment_papers' => json_encode($enrollmentPapers ?? []), // Store uploaded files' paths as JSON
-            'original_bachelors_degree' => $originalBachelorsDegree ?? null, // Store the uploaded file's path
-            'enrollment_papers' => $imageName ?? null, // Store the uploaded file's path
-        ]);
-        $studentPhotos->save();
-    
-        // Return a success response with the created student details
-        return response()->json([
-            'message' => 'User successfully registered',
-            'student' => $student,
-            'student_photos' => $studentPhotos
-        ], 201);
+   
+public function register(Request $request)
+{
+    // Validate the request parameters for user registration
+    $validator = Validator::make($request->all(), [
+        'enrollment_papers.*' => 'required|image|mimes:png,jpg,jpeg|max:2048', // Validating multiple image uploads
+        'original_bachelors_degree' => 'required|image|mimes:png,jpg,jpeg|max:2048', // Validating the original bachelor's degree
+        'name' => 'required|string|between:2,100',
+        'english_name' => 'required|string|between:2,100',
+        'nationality' => 'required|string|between:2,100',
+        'religion' => 'required|string|between:2,100',
+        'job' => 'required|string|between:2,100',
+        'age' => 'required|integer', // Assuming age is an integer
+        'SSN' => 'required|string|between:2,100|unique:students,SSN', // Ensure SSN uniqueness in the 'students' table
+        'phone' => 'required|string|between:2,100',
+        'address' => 'required|string',
+        'department_id' => 'required|in:1,2,3,4',
+        'gender' => 'required|string', // Validating against specific genders
+        'marital_status' => 'required|string', // Validating against specific marital statuses
+        'idea' => 'nullable|string', // Assuming idea is optional
+        'email' => 'required|string|email|max:100|unique:students,email', // Ensure email uniqueness in the 'students' table
+        'type' => 'required|in:' . implode(',', Student::type), // Validate 'type' field against predefined options in the Student model
+    ]);
+
+    // If validation fails, return errors
+    if ($validator->fails()) {
+        return response()->json($validator->errors()->toJson(), 400);
     }
+
+    // Process enrollment papers (multiple file uploads)
+    $enrollmentPapers = [];
+    if ($request->hasFile('enrollment_papers')) {
+        foreach ($request->file('enrollment_papers') as $file) {
+            $path = $file->store('student/enrollment_papers'); // Store each file in a directory
+            $enrollmentPapers[] = $path;
+        }
+    }
+
+    // Process original bachelor's degree (single file upload)
+    $originalBachelorsDegree = null;
+    if ($request->hasFile('original_bachelors_degree')) {
+        $originalBachelorsDegree = $request->file('original_bachelors_degree')->store('student/original_bachelors_degree');
+    }
+
+    // Create a new student record in the 'students' table
+    $student = Student::create(array_merge(
+        $validator->validated(),
+        ['password' => bcrypt($request->password)]
+    ));
+
+    // Create a new student_photos record in the 'student_photos' table
+    $studentPhotos = new StudentPhotos([
+        'student_id' => $student->id,
+        'enrollment_papers' => json_encode($enrollmentPapers), // Store uploaded files' paths as JSON
+        'original_bachelors_degree' => $originalBachelorsDegree, // Store the uploaded file's path
+    ]);
+    $studentPhotos->save();
+
+    // Return a success response with the created student details
+    return response()->json([
+        'message' => 'User successfully registered',
+        'student' => $student,
+        'student_photos' => $studentPhotos
+    ], 201);
+}
+    
     
 
     /**
