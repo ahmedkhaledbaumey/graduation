@@ -22,7 +22,7 @@ class StudentController extends Controller
      */
     public function __construct() {
         // Apply middleware to protect routes, except for login and register
-        $this->middleware('auth:student', ['except' => ['login', 'register' ,'makereporthead']]);
+        // $this->middleware('auth:student', ['except' => ['login', 'register' ,'makereporthead','makereportprof']]);
     }
 
     /**
@@ -313,7 +313,7 @@ public function showreports()
         // Get the authenticated student 
         $student_id = auth()->user()->id;
         $student = Student::find($student_id);
-        $head_id = $student->department()->head_id ; 
+        $head_id = $student->department->head_id ; 
     
         // Create a new Report instance with validated data
         $report = new Report([
@@ -341,8 +341,7 @@ public function showreports()
             'content' => 'required|string',
             'type' => 'required|string',
             'date' => 'required|date',
-            // 'prof_id' => '|exists:profs,id', // Ensure the provided professor ID exists
-            // 'department_id' => 'required|exists:departments,id', // Ensure the provided department ID exists
+            // 'prof_id' => 'required|exists:profs,id', // Ensure the provided professor ID exists
         ]);
     
         // Check if validation fails
@@ -350,17 +349,17 @@ public function showreports()
             return response()->json($validator->errors(), 400);
         }
     
-        // Get the authenticated student 
+        // Get the authenticated professor
         $prof_id = auth()->user()->id;
         $prof = Prof::find($prof_id);
-        $head_id = $prof->department()->head_id ; 
+        $department = $prof->department; // Load the department model
+        $head_id = $department->head_id; // Access the head_id property
     
         // Create a new Report instance with validated data
         $report = new Report([
             'content' => $request->input('content'),
             'type' => $request->input('type'),
             'date' => $request->input('date'),
-            // 'prof_id' => $request->input('prof_id'),
             'head_id' => $head_id,
             'prof_id' => $prof->id,
         ]);
@@ -374,6 +373,7 @@ public function showreports()
             'report' => $report,
         ], 201);
     }
+    
     public function makereporthead(Request $request)
     {
         // Validate the incoming request data

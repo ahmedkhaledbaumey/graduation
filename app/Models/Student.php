@@ -34,7 +34,7 @@ class Student extends Authenticatable implements JWTSubject
     public function department()
     {
         return $this->belongsTo(Department::class);
-    }
+    } 
 
     // علاقة الطالب مع الدورات (Many-to-Many)
     public function courses()

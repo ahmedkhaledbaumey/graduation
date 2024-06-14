@@ -10,6 +10,7 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AdminController;
 
 // Authentication Routes
+Route::post('/auth/loginhead/{guard}', [AdminController::class, 'loginhead']);
 Route::post('/auth/loginstudent', [AdminController::class, 'loginstudent']);
 Route::post('/auth/login', [StudentController::class, 'login']);
 Route::post('/adminlogin', [HeadController::class, 'adminlogin']);
@@ -47,7 +48,7 @@ Route::middleware('auth:student')->group(function () {
     // Make report by student route
     Route::post('/makereportstudent', [StudentController::class, 'makereportstudent'])->middleware('auth:student');
     // Make report by professor route
-    Route::post('/makereportprof', [StudentController::class, 'makereportprof'])->middleware('auth:prof');
+    // Route::post('/makereportprof', [StudentController::class, 'makereportprof'])->middleware('auth:prof');
     // Make report by department head route
     
     // Show schedule details route
@@ -68,14 +69,14 @@ Route::middleware('auth:student')->group(function () {
     // Protected Routes (require student or head authentication)
     
     // Protected Routes (require different admin authentications)
-    Route::middleware('auth:admin')->group(function () {
+   
         Route::post('/addhead', [AdminController::class, 'addhead']);
         Route::post('/addprof', [AdminController::class, 'addprof']);
         Route::post('/addemployee', [AdminController::class, 'addemployee']);
         Route::post('/addvice', [AdminController::class, 'addvice']);
         Route::put('/updateAccounthead', [AdminController::class, 'updateAccounthead']);
     Route::delete('/deletehead/{id}', [AdminController::class, 'deletehead']);
-    });
+    
     Route::middleware('auth:prof')->group(function () {
     Route::put('/updateAccountprof', [AdminController::class, 'updateAccountprof']);
     Route::delete('/deleteprof/{id}', [AdminController::class, 'deleteprof']);
@@ -90,13 +91,12 @@ Route::middleware('auth:student')->group(function () {
             });
             
             // Schedule routes
-            Route::middleware('auth:employee')->group(function () {
+           
     Route::get('/schedules', [ScheduleController::class, 'index']);
     Route::post('/schedules', [ScheduleController::class, 'store']);
     Route::get('/schedules/{id}', [ScheduleController::class, 'show']);
     Route::put('/schedules/{id}', [ScheduleController::class, 'update']);
     Route::delete('/schedules/{id}', [ScheduleController::class, 'destroy']);
-    });
     
     // Department routes
     Route::middleware('auth:employee')->group(function () {
@@ -111,6 +111,8 @@ Route::middleware('auth:student')->group(function () {
         Route::post('/addadmin', [HeadController::class, 'addadmin']);
         // routes/api.php
         Route::post('/makereporthead', [StudentController::class, 'makereporthead'])->middleware('auth:head'); 
+        Route::post('/makereportprof', [StudentController::class, 'makereportprof'])->middleware('auth:prof'); 
+       
         
         // Catch-all route for undefined routes
         Route::fallback(function () {

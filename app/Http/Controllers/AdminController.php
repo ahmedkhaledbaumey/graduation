@@ -32,23 +32,24 @@ class AdminController extends Controller
     
         return $this->createNewToken($token);
     }
-    public function loginhead(Request $request ,$guard)
-    {
-        $validator = Validator::make($request->all(), [
-            'account' => 'required|email',
-            'password' => 'required|string|min:6',
-        ]);
-    
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-    
-        if (! $token = auth()->guard($guard)->attempt($validator->validated())) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
-        }
-    
-        return $this->createNewToken($token);
+  public function loginhead(Request $request, $guard)
+{
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|email',
+        'password' => 'required|string|min:6',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json($validator->errors(), 422);
     }
+
+    if (!$token = auth()->guard($guard)->attempt($validator->validated())) {
+        return response()->json(['error' => 'Invalid credentials'], 401);
+    }
+
+    return $this->createNewToken($token, $guard);
+}
+
     // public function loginemployee(Request $request)
     // {
     //     $validator = Validator::make($request->all(), [
@@ -141,9 +142,11 @@ class AdminController extends Controller
     {
         // Validate the request parameters for user registration
         $validator = Validator::make($request->all(), [
-        
-            'email' => 'required|string|email|max:100|unique:students,email', // Ensure email uniqueness in the 'students' table
-            'password' => 'required|string|confirmed|min:6', // Validate password confirmation and length
+            'email' => 'required|string|email|max:100|unique:students,email',
+            'name' => 'required|string',
+            'phone' => 'required|string',
+            'password' => 'required|string|confirmed|min:6',
+            'department_id' => 'required|in:1,2,3,4',
         ]);
     
         // If validation fails, return errors
@@ -151,15 +154,14 @@ class AdminController extends Controller
             return response()->json($validator->errors()->toJson(), 400);
         }
     
-        // Process enrollment papers (multiple file uploads)
-     
-    
-        // Create a new user record in the 'students' table
-        $user = Prof::create(array_merge(
-            $validator->validated(),
-            ['password' => bcrypt($request->password)], // Hash the password before storing
-          
-        ));
+        // Create a new user record in the 'profs' table
+        $user = Prof::create([
+            'email' => $request->email,
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'password' => bcrypt($request->password), // Hash the password before storing
+            'department_id' => $request->department_id,
+        ]);
     
         // Send notification or perform other actions here...
     
@@ -168,7 +170,8 @@ class AdminController extends Controller
             'message' => 'User successfully registered',
             'user' => $user
         ], 201);
-    } 
+    }
+    
     public function addemployee(Request $request)
     {
         // Validate the request parameters for user registration
@@ -255,16 +258,17 @@ class AdminController extends Controller
      * @param  string $token
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function createNewToken($token){      
+    protected function createNewToken($token, $guard)
+    {
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->guard("student")->factory()->getTTL() * 60000,
-            'login_type' => auth()->user()->login_type, // Assuming 'login_type' is an attribute of the user model
-
-            // 'user' => auth()->user() // Return the authenticated user's data in the response
+            'expires_in' => auth()->guard($guard)->factory()->getTTL() * 60000,
+            'login_type' => auth()->guard($guard)->user()->login_type, // Assuming 'login_type' is an attribute of the user model
         ]);
-    } 
+    }
+    
+    
 
 
     public function updateAccountprof(Request $request)

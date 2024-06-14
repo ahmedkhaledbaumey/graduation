@@ -50,7 +50,7 @@ class HeadController extends Controller
             return response()->json(
                 [
                     'message' => 'Account added successfully.',
-                    'password' => $randomPassword,             'email' => $student->account
+                    'password' => $randomPassword ,             'account' => $student->account
                 ],
                 200
             );
