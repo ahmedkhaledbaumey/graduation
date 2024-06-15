@@ -10,7 +10,7 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AdminController;
 
 // Authentication Routes
-Route::post('/auth/loginhead/{guard}', [AdminController::class, 'loginhead']);
+Route::post('/auth/loginhead/{guard}', [AdminController::class, 'loginall']);
 Route::post('/auth/loginstudent', [AdminController::class, 'loginstudent']);
 Route::post('/auth/login', [StudentController::class, 'login']);
 Route::post('/adminlogin', [HeadController::class, 'adminlogin']);

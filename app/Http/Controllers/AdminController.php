@@ -32,7 +32,7 @@ class AdminController extends Controller
     
         return $this->createNewToken($token);
     }
-  public function loginhead(Request $request, $guard)
+  public function loginall(Request $request, $guard)
 {
     $validator = Validator::make($request->all(), [
         'email' => 'required|email',
