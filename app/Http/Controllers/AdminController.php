@@ -32,23 +32,27 @@ class AdminController extends Controller
     
         return $this->createNewToken($token);
     }
-  public function loginall(Request $request, $guard)
-{
-    $validator = Validator::make($request->all(), [
-        'email' => 'required|email',
-        'password' => 'required|string|min:6',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json($validator->errors(), 422);
+    public function loginall(Request $request, $guard)
+    {
+        $fieldName = $guard === 'student' ? 'account' : 'email';
+    
+        $validator = Validator::make($request->all(), [
+            $fieldName => 'required|string', // Use 'account' when guard is 'student', otherwise 'email'
+            'password' => 'required|string|min:6',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+    
+        // Authenticate using the appropriate field based on guard
+        if (!$token = auth()->guard($guard)->attempt($validator->validated())) {
+            return response()->json(['error' => 'Invalid credentials'], 401);
+        }
+    
+        return $this->createNewToken($token, $guard);
     }
-
-    if (!$token = auth()->guard($guard)->attempt($validator->validated())) {
-        return response()->json(['error' => 'Invalid credentials'], 401);
-    }
-
-    return $this->createNewToken($token, $guard);
-}
+    
 
     // public function loginemployee(Request $request)
     // {
