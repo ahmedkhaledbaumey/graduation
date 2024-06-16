@@ -262,13 +262,13 @@ class AdminController extends Controller
      * @param  string $token
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function createNewToken($token, $guard)
+    protected function createNewToken($token)
     {
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->guard($guard)->factory()->getTTL() * 60000,
-            'login_type' => auth()->guard($guard)->user()->login_type, // Assuming 'login_type' is an attribute of the user model
+            'expires_in' => auth()->factory()->getTTL() * 60000,
+            'login_type' => auth()->user()->login_type, // Assuming 'login_type' is an attribute of the user model
         ]);
     }
     
