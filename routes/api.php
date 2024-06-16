@@ -108,6 +108,11 @@ Route::middleware('auth:student')->group(function () {
         });
         
         Route::post('/addacount/{id}', [HeadController::class, 'addstudent']);
+        Route::post('/rejectstudent/{id}', [HeadController::class, 'rejectstudent']);
+        Route::post('/addacounts', [HeadController::class, 'addStudents']);
+        Route::post('/rejectStudents', [HeadController::class, 'rejectStudents']);
+        Route::get('/PendingStudent', [HeadController::class, 'PendingStudent']);
+
         Route::post('/addadmin', [HeadController::class, 'addadmin']);
         // routes/api.php
         Route::post('/makereporthead', [StudentController::class, 'makereporthead'])->middleware('auth:head'); 

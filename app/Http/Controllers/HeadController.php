@@ -31,7 +31,45 @@ class HeadController extends Controller
         $department->save();
         return response()->json(['message' => 'Grade Added Successfully.'], 404);
     }
+    public function PendingStudent()
+    {
+        $students = Student::where('status','pending')->get(); 
+        if($students){
+        return response()->json($students); 
+        } 
+        else {
+            return response()->json(['message' => 'No Students Found.'], 404);
+        }
+    }
+    public function rejectstudent($student_id)
+    {
+        $student = Student::findOrFail($student_id);
 
+        // Generate an email account based on student's name and domain
+        // $student->account = $student->name . "@fci.bu.edu.eg";
+        if($student->status =='pending') 
+        {
+        $status = "rejected";
+        // Generate a random password (you may adjust this logic as needed)
+        // $randomPassword = $student->SSN;
+
+        // $student->password = bcrypt($randomPassword);
+        $student->status = $status;
+
+
+        if ($student->save()) {
+            return response()->json(
+                [
+                    'message' => 'student rejected successfully.',
+                    // 'password' => $randomPassword ,             'account' => $student->account
+                ],
+                200
+            ); 
+        }
+        } else {
+            return response()->json(['error' => 'Failed to add account.'], 400);
+        }
+    } 
     public function addstudent($student_id)
     {
         $student = Student::findOrFail($student_id);
@@ -57,7 +95,116 @@ class HeadController extends Controller
         } else {
             return response()->json(['error' => 'Failed to add account.'], 400);
         }
+    } 
+
+    public function addStudents(Request $request)
+    {
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'student_ids' => 'required|array', // Ensure 'student_ids' is an array
+            'student_ids.*' => 'exists:students,id' // Ensure each ID exists in the 'students' table
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+    
+        $studentIds = $request->input('student_ids');
+        $results = [];
+    
+        foreach ($studentIds as $student_id) {
+            $student = Student::find($student_id);
+    
+            if ($student) {
+                // Generate an email account based on student's name and domain
+                $student->account = $student->name . "@fci.bu.edu.eg";
+                $status = "accept";
+                // Generate a random password (you may adjust this logic as needed)
+                $randomPassword = $student->SSN;
+    
+                $student->password = bcrypt($randomPassword);
+                $student->status = $status;
+    
+                if ($student->save()) {
+                    $results[] = [
+                        'student_id' => $student_id,
+                        'message' => 'Account added successfully.',
+                        'password' => $randomPassword,
+                        'account' => $student->account
+                    ];
+                } else {
+                    $results[] = [
+                        'student_id' => $student_id,
+                        'error' => 'Failed to add account.'
+                    ];
+                }
+            } else {
+                $results[] = [
+                    'student_id' => $student_id,
+                    'error' => 'Student not found.'
+                ];
+            }
+        }
+    
+        return response()->json($results, 200);
     }
+    public function rejectStudents(Request $request)
+    {
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'student_ids' => 'required|array', // Ensure 'student_ids' is an array
+            'student_ids.*' => 'exists:students,id' // Ensure each ID exists in the 'students' table
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+    
+        $studentIds = $request->input('student_ids');
+        $results = [];
+    
+        foreach ($studentIds as $student_id) {
+            $student = Student::find($student_id);
+    
+    
+            if ($student) { 
+            if ($student->status =='pending') { 
+
+                // Generate an email account based on student's name and domain
+                // $student->account = $student->name . "@fci.bu.edu.eg";
+                $status = "rejected";
+                // Generate a random password (you may adjust this logic as needed)
+                $randomPassword = $student->SSN;
+    
+                $student->password = bcrypt($randomPassword);
+                $student->status = $status;
+    
+                if ($student->save()) {
+                    $results[] = [
+                        'student_id' => $student_id,
+                        'message' => 'student rejected successfully.',
+                        // 'password' => $randomPassword,
+                        // 'account' => $student->account
+                    ]; 
+                }
+                } else {
+                    $results[] = [
+                        'student_id' => $student_id,
+                        'error' => 'Failed to add account.'
+                    ];
+                }
+            } else {
+                $results[] = [
+                    'student_id' => $student_id,
+                    'error' => 'Student not found.'
+                ];
+            }
+        }
+    
+        return response()->json($results, 200);
+    }
+    
+
     public function addadmin(Request $request)
     {
         $validator = Validator::make($request->all(), [
