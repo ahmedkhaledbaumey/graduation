@@ -30,7 +30,7 @@ class AdminController extends Controller
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
     
-        return $this->createNewToken($token);
+        return $this->createNewTokenStudent($token);
     }
     public function loginall(Request $request, $guard)
     {
@@ -262,7 +262,16 @@ class AdminController extends Controller
      * @param  string $token
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function createNewToken($token)
+    protected function createNewToken($token,$guard)
+    {
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->guard($guard)->factory()->getTTL() * 60000,
+            'login_type' => auth()->guard($guard)->user()->login_type, // Assuming 'login_type' is an attribute of the user model
+        ]);
+    }
+    protected function createNewTokenStudent($token)
     {
         return response()->json([
             'access_token' => $token,
