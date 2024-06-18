@@ -26,11 +26,14 @@ class AdminController extends Controller
             return response()->json($validator->errors(), 422);
         }
     
-        if (! $token = auth()->attempt($validator->validated())) {
+        if (! $token = auth()->attempt($validator->validated())) { 
+
             return response()->json(['error' => 'Invalid credentials'], 401);
-        }
-    
-        return $this->createNewTokenStudent($token);
+        } 
+        $user = auth()->user() ; 
+        $userData =  $this->createNewTokenStudent($token); 
+        return response()->json(["data"=>$user , $userData], 200); 
+
     }
     public function loginall(Request $request, $guard)
     {
@@ -47,10 +50,16 @@ class AdminController extends Controller
     
         // Authenticate using the appropriate field based on guard
         if (!$token = auth()->guard($guard)->attempt($validator->validated())) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
+            return response()->json(['error' => 'Invalid credentials'], 401); 
+            
         }
+    $user = auth()->user();   
     
-        return $this->createNewToken($token, $guard);
+$userdata =Student::find($user->id); 
+$userPhoto = $user->studentPhotos ; 
+
+        
+        return response()->json(["user_data"=>$user ,'user_photo'=> $userPhoto], 200); 
     }
     
 

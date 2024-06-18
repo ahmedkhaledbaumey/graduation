@@ -137,6 +137,7 @@ public function register(Request $request)
     $validator = Validator::make($request->all(), [
         'enrollment_papers.*' => 'required|string', // Validating multiple image uploads as Base64 strings
         'original_bachelors_degree' => 'required|string', // Validating the original bachelor's degree as a Base64 string
+        'personalImage' => 'required|string', // Validating the student's image as a Base64 string
         'name' => 'required|string|between:2,100',
         'english_name' => 'required|string|between:2,100',
         'nationality' => 'required|string|between:2,100',
@@ -173,10 +174,15 @@ public function register(Request $request)
     $originalBachelorsDegreePath = 'student/original_bachelors_degree/' . uniqid() . '.jpg';
     Storage::put($originalBachelorsDegreePath, $originalBachelorsDegree);
 
+    // Process student image (single Base64 string)
+    $studentImage = base64_decode($request->input('personalImage'));
+    $studentImagePath = 'student/student_images/' . uniqid() . '.jpg';
+    Storage::put($studentImagePath, $studentImage);
+
     // Create a new student record in the 'students' table
     $student = Student::create(array_merge(
         $validator->validated(),
-        ['password' => bcrypt($request->password)]
+        ['password' => bcrypt($request->password), 'student_image' => $studentImagePath]
     ));
 
     // Create a new student_photos record in the 'student_photos' table
@@ -195,8 +201,6 @@ public function register(Request $request)
     ], 201);
 }
 
-    
-    
 
     /**
      * Log out the authenticated user (Invalidate the token).

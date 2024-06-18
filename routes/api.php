@@ -30,21 +30,21 @@ Route::middleware('auth:student')->group(function () {
     // Refresh token route
     Route::post('/auth/refresh', [StudentController::class, 'refresh']);
     // User profile route
-    Route::get('/auth/user-profile', [StudentController::class, 'userProfile']);
+    Route::post('/auth/user-profile', [StudentController::class, 'userProfile']);
     // Enroll courses route
     Route::post('/courses/enroll', [StudentController::class, 'enrollCourses'])->middleware('auth:student');
     // Show grade route
-    Route::get('/showgrade', [StudentController::class, 'showgrade'])->middleware('auth:student');
+    Route::post('/showgrade', [StudentController::class, 'showgrade'])->middleware('auth:student');
     // Show courses route
-    Route::get('/showcourses', [StudentController::class, 'showcourses'])->middleware('auth:student');
+    Route::post('/showcourses', [StudentController::class, 'showcourses'])->middleware('auth:student');
     // Show reports route
-    Route::get('/showreports', [StudentController::class, 'showreports'])->middleware('auth:head');
+    Route::post('/showreports', [StudentController::class, 'showreports'])->middleware('auth:head');
     // Show specific report for student route
-    Route::get('/showreportsstudent', [StudentController::class, 'showreportsstudent'])->middleware('auth:student');
+    Route::post('/showreportsstudent', [StudentController::class, 'showreportsstudent'])->middleware('auth:student');
     // Show specific report for professor route
-    Route::get('/showreportsprof', [StudentController::class, 'showreportsprof'])->middleware('auth:prof');
+    Route::post('/showreportsprof', [StudentController::class, 'showreportsprof'])->middleware('auth:prof');
     // Show specific report for department head route
-    Route::get('/showreportshead', [StudentController::class, 'showreportshead'])->middleware('auth:head');
+    Route::post('/showreportshead', [StudentController::class, 'showreportshead'])->middleware('auth:head');
     // Make report by student route
     Route::post('/makereportstudent', [StudentController::class, 'makereportstudent'])->middleware('auth:student');
     // Make report by professor route
@@ -52,19 +52,19 @@ Route::middleware('auth:student')->group(function () {
     // Make report by department head route
     
     // Show schedule details route
-    Route::get('/showscheduales/{id}', [StudentController::class, 'showscheduales'])->middleware('auth:student');
+    Route::post('/showscheduales/{id}', [StudentController::class, 'showscheduales'])->middleware('auth:student');
     // Research plan route
-    Route::get('/researchplan', [StudentController::class, 'researchplan'])->middleware('auth:student');
-    Route::get('/researchplan', [StudentController::class, 'researchplan'])->middleware('auth:student');
+    Route::post('/researchplan', [StudentController::class, 'researchplan'])->middleware('auth:student');
+    Route::post('/researchplan', [StudentController::class, 'researchplan'])->middleware('auth:student');
     
     });
     // Course routes
-    Route::get('/courses', [CourseController::class, 'index']); // List all courses
+    Route::post('/courses', [CourseController::class, 'index']); // List all courses
     Route::post('/courses', [CourseController::class, 'store']); // Create a new course
     Route::post('/courses/addmatrial/{id}', [CourseController::class, 'addmatrial']); // Create a new course
-    Route::get('/courses/{course}', [CourseController::class, 'show']); // Show details of a specific course
-    Route::put('/courses/{course}', [CourseController::class, 'update']); // Update a course
-    Route::delete('/courses/{course}', [CourseController::class, 'destroy']); // Delete a course
+    Route::post('/courses/{course}', [CourseController::class, 'show']); // Show details of a specific course
+    Route::post('/courses/{course}', [CourseController::class, 'update']); // Update a course
+    Route::post('/courses/{course}', [CourseController::class, 'destroy']); // Delete a course
     
     // Protected Routes (require student or head authentication)
     
@@ -74,44 +74,37 @@ Route::middleware('auth:student')->group(function () {
         Route::post('/addprof', [AdminController::class, 'addprof']);
         Route::post('/addemployee', [AdminController::class, 'addemployee']);
         Route::post('/addvice', [AdminController::class, 'addvice']);
-        Route::put('/updateAccounthead', [AdminController::class, 'updateAccounthead']);
-    Route::delete('/deletehead/{id}', [AdminController::class, 'deletehead']);
+        Route::post('/updateAccounthead', [AdminController::class, 'updateAccounthead']);
+    Route::post('/deletehead/{id}', [AdminController::class, 'deletehead']);
     
-    Route::middleware('auth:prof')->group(function () {
-    Route::put('/updateAccountprof', [AdminController::class, 'updateAccountprof']);
-    Route::delete('/deleteprof/{id}', [AdminController::class, 'deleteprof']);
-    });
-    Route::middleware('auth:employee')->group(function () {
+    
+    Route::post('/updateAccountprof', [AdminController::class, 'updateAccountprof']);
+    Route::post('/deleteprof/{id}', [AdminController::class, 'deleteprof']);
         Route::put('/updateAccountemployee', [AdminController::class, 'updateAccountemployee']);
-        Route::delete('/deleteemployee/{id}', [AdminController::class, 'deleteemployee']);
-        });
-        Route::middleware('auth:vice_dean')->group(function () {
+        Route::post('/deleteemployee/{id}', [AdminController::class, 'deleteemployee']);
             Route::put('/updateAccountvice', [AdminController::class, 'updateAccountvice']);
             Route::delete('/deletevice/{id}', [AdminController::class, 'deletevice']);
-            });
             
             // Schedule routes
            
-    Route::get('/schedules', [ScheduleController::class, 'index']);
+    Route::post('/schedules', [ScheduleController::class, 'index']);
     Route::post('/schedules', [ScheduleController::class, 'store']);
-    Route::get('/schedules/{id}', [ScheduleController::class, 'show']);
-    Route::put('/schedules/{id}', [ScheduleController::class, 'update']);
-    Route::delete('/schedules/{id}', [ScheduleController::class, 'destroy']);
+    Route::post('/schedules/{id}', [ScheduleController::class, 'show']);
+    Route::post('/schedules/{id}', [ScheduleController::class, 'update']);
+    Route::post('/schedules/{id}', [ScheduleController::class, 'destroy']);
     
     // Department routes
-    Route::middleware('auth:employee')->group(function () {
-        Route::get('/departments', [DepartmentController::class, 'index']);
+        Route::post('/departments', [DepartmentController::class, 'index']);
         Route::post('/departments', [DepartmentController::class, 'store']);
-        Route::get('/departments/{id}', [DepartmentController::class, 'show']);
-        Route::put('/departments/{id}', [DepartmentController::class, 'update']);
-        Route::delete('/departments/{id}', [DepartmentController::class, 'destroy']);
-        });
+        Route::post('/departments/{id}', [DepartmentController::class, 'show']);
+        Route::post('/departments/{id}', [DepartmentController::class, 'update']);
+        Route::post('/departments/{id}', [DepartmentController::class, 'destroy']);
         
         Route::post('/addacount/{id}', [HeadController::class, 'addstudent']);
         Route::post('/rejectstudent/{id}', [HeadController::class, 'rejectstudent']);
         Route::post('/addacounts', [HeadController::class, 'addStudents']);
         Route::post('/rejectStudents', [HeadController::class, 'rejectStudents']);
-        Route::get('/PendingStudent', [HeadController::class, 'PendingStudent']);
+        Route::post('/PendingStudent', [HeadController::class, 'PendingStudent']);
 
         Route::post('/addadmin', [HeadController::class, 'addadmin']);
         // routes/api.php
