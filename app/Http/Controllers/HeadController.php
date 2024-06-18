@@ -34,9 +34,9 @@ class HeadController extends Controller
     public function PendingStudent()
     { 
         
-        $students = Student::where('status', 'pending')->get();
+        $students = Student::with('studentPhotos')->where('status', 'pending')->get();
         if ($students) {
-            return response()->json($students);
+            return response()->json($students, 200);
         } else {
             return response()->json(['message' => 'No Students Found.'], 404);
         }

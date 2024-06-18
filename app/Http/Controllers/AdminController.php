@@ -59,7 +59,7 @@ $userdata =Student::find($user->id);
 $userPhoto = $user->studentPhotos ; 
 
         
-        return response()->json(["user_data"=>$user ,'user_photo'=> $userPhoto], 200); 
+        return response()->json(["user_data"=>$user ,'token'=>$token], 200); 
     }
     
 
