@@ -241,9 +241,14 @@ class StudentController extends Controller
      */
     public function userProfile()
     {
-        return response()->json(auth()->user()); // Return the authenticated user's profile data
+        $student = auth()->user()->load('studentPhotos');
+    
+        return response()->json([
+            'student' => $student,    
+               
+            // 'student_photos' => $student->studentPhotos
+        ], 201); // Return the authenticated user's profile data
     }
-
     /**
      * Create a new JWT response.
      *
@@ -389,7 +394,14 @@ class StudentController extends Controller
             // 'prof_id' => '|exists:profs,id', // Ensure the provided professor ID exists
             // 'department_id' => 'required|exists:departments,id', // Ensure the provided department ID exists
         ]);
+if($request->input('type') == 'provideresearchpoint') 
+{  
+    $validator = Validator::make($request->all(), [
+            'researchpoint' => 'required|string',
+         
+        ]); 
 
+} 
         // Check if validation fails
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
@@ -405,6 +417,7 @@ class StudentController extends Controller
             'content' => $request->input('content'),
             'type' => $request->input('type'),
             'date' => $request->input('date'),
+            'researchpoint' => $request->input('researchpoint'),
             // 'prof_id' => $request->input('prof_id'),
             'head_id' => $head_id,
             'student_id' => $student->id,

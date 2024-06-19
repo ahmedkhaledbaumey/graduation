@@ -8,6 +8,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\HeadController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\StripeController;
 
 // Authentication Routes
 Route::post('/auth/loginall/{guard}', [AdminController::class, 'loginall']);
@@ -112,6 +113,15 @@ Route::middleware('auth:student')->group(function () {
         Route::post('/makereportprof', [StudentController::class, 'makereportprof'])->middleware('auth:prof'); 
        
         
+        Route::post('/stripe', [StripeController::class, 'makePayment']); 
+
+Route::put('/student/{student_id}/secound-term', [HeadController::class, 'secoundTerm']);
+Route::put('/student/{student_id}/go-to-master', [HeadController::class, 'goToMaster']);
+Route::put('/student/{student_id}/accept-in-master', [HeadController::class, 'acceptInMaster']);
+Route::put('/student/{student_id}/master-done', [HeadController::class, 'masterDone']);
+Route::put('/student/{student_id}/pass-general-exam', [HeadController::class, 'passgeneralexam']);
+
+
         // Catch-all route for undefined routes
         Route::fallback(function () {
             return response()->json(['message' => 'Not Found'], 404);

@@ -276,5 +276,92 @@ class HeadController extends Controller
             'expires_in' => auth()->factory()->getTTL() * 600000000000000000,
             // 'user' => auth()->user() // Return the authenticated user's data in the response
         ]);
+    } 
+
+    public function secoundTerm($student_id)
+    {
+        $student = Student::findOrFail($student_id);  
+        $student->time = 'last';
+        if ($student->save()) {
+            return response()->json(
+                [
+                    'message' => 'student  become in secound term.',
+                ],
+                200
+            );
+        } else {
+            return response()->json(['error' => 'Failed to add account.'], 400);
+        }
+    }
+    public function goToMaster($student_id)
+    {
+        $student = Student::findOrFail($student_id);  
+        $student->time = 'null';
+        $student->level = 'null';
+        $student->status = 'pending';
+        if ($student->save()) {
+            return response()->json(
+                [
+                    'message' => 'student  finish  study .',
+                ],
+                200
+            );
+        } else {
+            return response()->json(['error' => 'Failed to add account.'], 400);
+        }
+    }
+    public function acceptInMaster($student_id)
+    {
+        $student = Student::findOrFail($student_id);  
+        $student->time = 'null';
+        $student->level = 'second_level';
+        $student->status = 'accept';
+        if ($student->save()) {
+            return response()->json(
+                [
+                    'message' => 'student  finish  study .',
+                ],
+                200
+            );
+        } else {
+            return response()->json(['error' => 'Failed to add account.'], 400);
+        }
+    }
+    public function masterDone($student_id)
+    {
+        $student = Student::findOrFail($student_id);  
+        $student->time = 'null';
+        $student->level = 'null';
+        $student->status = 'pending'; 
+        $student->degree = 'phd'; 
+
+        if ($student->save()) {
+            return response()->json(
+                [
+                    'message' => 'student  finish  study .',
+                ],
+                200
+            );
+        } else {
+            return response()->json(['error' => 'Failed to add account.'], 400);
+        }
+    }
+    public function passgeneralexam($student_id)
+    {
+        $student = Student::findOrFail($student_id);  
+    
+        $student->status = 'accept'; 
+        $student->generalexam = 'done'; 
+
+        if ($student->save()) {
+            return response()->json(
+                [
+                    'message' => 'student  finish  study .',
+                ],
+                200
+            );
+        } else {
+            return response()->json(['error' => 'Failed to add account.'], 400);
+        }
     }
 }

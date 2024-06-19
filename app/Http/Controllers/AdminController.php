@@ -52,11 +52,14 @@ class AdminController extends Controller
         if (!$token = auth()->guard($guard)->attempt($validator->validated())) {
             return response()->json(['error' => 'Invalid credentials'], 401); 
             
-        }
-    $user = auth()->user();   
-    
-$userdata =Student::find($user->id); 
-$userPhoto = $user->studentPhotos ; 
+        } 
+    $user = auth()->guard($guard)->user();   
+    if($guard =='student') 
+    { 
+
+        $userdata =Student::find($user->id); 
+        $userPhoto = $user->studentPhotos ; 
+    }
 
         
         return response()->json(["user_data"=>$user ,'token'=>$token], 200); 
