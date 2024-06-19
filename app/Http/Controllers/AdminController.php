@@ -31,8 +31,8 @@ class AdminController extends Controller
             return response()->json(['error' => 'Invalid credentials'], 401);
         } 
         $user = auth()->user() ; 
-        $userData =  $this->createNewTokenStudent($token); 
-        return response()->json(["data"=>$user , $userData], 200); 
+      
+        return response()->json(["data"=>$user ,'token'=> $token], 200); 
 
     }
     public function loginall(Request $request, $guard)
@@ -154,6 +154,80 @@ class AdminController extends Controller
             'user' => $user
         ], 201);
     } 
+    public function addEmployee(Request $request)
+    {
+        // Validate the request parameters for user registration
+        $validator = Validator::make($request->all(), [
+        
+            'email' => 'required|string|email|max:100|unique:students,email', // Ensure email uniqueness in the 'students' table
+            'name' => 'required|string|', // Ensure email uniqueness in the 'students' table
+            'phone' => 'required|string|', // Ensure email uniqueness in the 'students' table
+            'password' => 'required|string|confirmed|min:6', // Validate password confirmation and length
+        ]);
+    
+        // If validation fails, return errors
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+    
+        // Process enrollment papers (multiple file uploads)
+     
+    
+        // Create a new user record in the 'students' table
+        $user = Employee::create(array_merge(
+            $validator->validated(),
+            ['password' => bcrypt($request->password) , 
+            'name' => $request->name , 
+            'email' => $request->email 
+
+        ], // Hash the password before storing
+          
+        ));
+    
+        // Send notification or perform other actions here...
+    
+        // Return a success response with the created user details
+        return response()->json([
+            'message' => 'User successfully registered',
+            'user' => $user
+        ], 201);
+    } 
+    public function addVice(Request $request)
+    {
+        // Validate the request parameters for user registration
+        $validator = Validator::make($request->all(), [
+        
+            'email' => 'required|string|email|max:100|unique:students,email', // Ensure email uniqueness in the 'students' table
+            'password' => 'required|string|confirmed|min:6', // Validate password confirmation and length
+        ]);
+    
+        // If validation fails, return errors
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+    
+        // Process enrollment papers (multiple file uploads)
+     
+    
+        // Create a new user record in the 'students' table
+        $user = ViceDean::create(array_merge(
+            $validator->validated(),
+            ['password' => bcrypt($request->password) , 
+            'name' => $request->name , 
+            'email' => $request->email 
+
+        ], // Hash the password before storing
+          
+        ));
+    
+        // Send notification or perform other actions here...
+    
+        // Return a success response with the created user details
+        return response()->json([
+            'message' => 'User successfully registered',
+            'user' => $user
+        ], 201);
+    } 
     public function addprof(Request $request)
     {
         // Validate the request parameters for user registration
@@ -188,71 +262,7 @@ class AdminController extends Controller
         ], 201);
     }
     
-    public function addemployee(Request $request)
-    {
-        // Validate the request parameters for user registration
-        $validator = Validator::make($request->all(), [
-        
-            'email' => 'required|string|email|max:100|unique:students,email', // Ensure email uniqueness in the 'students' table
-            'password' => 'required|string|confirmed|min:6', // Validate password confirmation and length
-        ]);
-    
-        // If validation fails, return errors
-        if ($validator->fails()) {
-            return response()->json($validator->errors()->toJson(), 400);
-        }
-    
-        // Process enrollment papers (multiple file uploads)
-     
-    
-        // Create a new user record in the 'students' table
-        $user = Employee::create(array_merge(
-            $validator->validated(),
-            ['password' => bcrypt($request->password)], // Hash the password before storing
-          
-        ));
-    
-        // Send notification or perform other actions here...
-    
-        // Return a success response with the created user details
-        return response()->json([
-            'message' => 'User successfully registered',
-            'user' => $user
-        ], 201);
-    } 
-    public function addvice(Request $request)
-    {
-        // Validate the request parameters for user registration
-        $validator = Validator::make($request->all(), [
-        
-            'email' => 'required|string|email|max:100|unique:students,email', // Ensure email uniqueness in the 'students' table
-            'password' => 'required|string|confirmed|min:6', // Validate password confirmation and length
-        ]);
-    
-        // If validation fails, return errors
-        if ($validator->fails()) {
-            return response()->json($validator->errors()->toJson(), 400);
-        }
-    
-        // Process enrollment papers (multiple file uploads)
-     
-    
-        // Create a new user record in the 'students' table
-        $user = ViceDean::create(array_merge(
-            $validator->validated(),
-            ['password' => bcrypt($request->password)], // Hash the password before storing
-          
-        ));
-    
-        // Send notification or perform other actions here...
-    
-        // Return a success response with the created user details
-        return response()->json([
-            'message' => 'User successfully registered',
-            'user' => $user
-        ], 201);
-    } 
- 
+   
 
 
     public function refresh() {

@@ -34,10 +34,12 @@ Route::middleware('auth:student')->group(function () {
     Route::post('/auth/user-profile', [StudentController::class, 'userProfile']);
     // Enroll courses route
     Route::post('/courses/enroll', [StudentController::class, 'enrollCourses'])->middleware('auth:student');
+    // Route::post('/courses/enrollCourseToDep', [StudentController::class, 'enrollCourseToDep']);
     // Show grade route
     Route::post('/showgrade', [StudentController::class, 'showgrade'])->middleware('auth:student');
     // Show courses route
     Route::post('/showcourses', [StudentController::class, 'showcourses'])->middleware('auth:student');
+    Route::post('/showcoursesForDepartment', [StudentController::class, 'showcoursesForDepartment'])->middleware('auth:student');
     // Show reports route
     Route::post('/showreports', [StudentController::class, 'showreports'])->middleware('auth:head');
     // Show specific report for student route
@@ -56,7 +58,9 @@ Route::middleware('auth:student')->group(function () {
     Route::post('/showscheduales/{id}', [StudentController::class, 'showscheduales'])->middleware('auth:student');
     // Research plan route
     Route::post('/researchplan', [StudentController::class, 'researchplan'])->middleware('auth:student');
-    Route::post('/researchplan', [StudentController::class, 'researchplan'])->middleware('auth:student');
+
+    Route::post('/courses/addplan/{id}', [CourseController::class, 'addplan']); // Create a new course
+    
     
     });
     // Course routes

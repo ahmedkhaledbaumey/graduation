@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Course;
+use App\Models\Department;
 
 class CourseController extends Controller
 {
@@ -52,6 +53,21 @@ class CourseController extends Controller
 
       $course = Course::findOrFail($id) ;   
        $course->material = $validatedData["material"] ;  
+       $course->save() ; 
+       
+        return response()->json($course, 201);
+    }
+    public function addplan(Request $request  , $id)
+    {
+        // Validate request data
+        $validatedData = $request->validate([
+           
+            'reserach_plan' => 'string|nullable',
+         
+        ]);
+
+      $course = Department::findOrFail($id) ;   
+       $course->reserach_plan = $validatedData["reserach_plan"] ;  
        $course->save() ; 
        
         return response()->json($course, 201);

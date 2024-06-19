@@ -23,14 +23,7 @@ class HeadController extends Controller
         $student->save();
         return response()->json(['message' => 'Grade Added Successfully.'], 404);
     }
-    public function addrecearchplan(Request $request, $id)
-    {
-        $department = Department::findOrFail($id);
-
-        $department->research_plan = $request->research_plan;
-        $department->save();
-        return response()->json(['message' => 'Grade Added Successfully.'], 404);
-    }
+   
     public function PendingStudent()
     { 
         
@@ -363,5 +356,6 @@ class HeadController extends Controller
         } else {
             return response()->json(['error' => 'Failed to add account.'], 400);
         }
-    }
+    } 
+  
 }

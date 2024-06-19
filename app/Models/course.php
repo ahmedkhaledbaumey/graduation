@@ -15,6 +15,8 @@ class Course extends Model
     public function students()
     {
         return $this->belongsToMany(Student::class, 'course_students', 'course_id', 'student_id')
-            ->withPivot('grade', 'firstOrSecond');
-    }
+            ->withPivot('grade', 'firstOrSecond','department_id');
+    } 
+
+
 }

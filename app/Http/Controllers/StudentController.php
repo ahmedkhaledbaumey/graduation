@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
 use Validator;
 use App\Models\Head;
 use App\Models\Prof;
@@ -25,7 +26,7 @@ class StudentController extends Controller
     public function __construct()
     {
         // Apply middleware to protect routes, except for login and register
-        // $this->middleware('auth:student', ['except' => ['login', 'register' ,'makereporthead','makereportprof']]);
+        // $this->middleware('auth:student', ['except' => ['login', 'register' ,'makereporthead','makereportprof' ,'addresearchplan']]);
     }
 
     /**
@@ -174,7 +175,7 @@ class StudentController extends Controller
         }
 
         // Process original bachelor's degree (single Base64 string)
-        $personalImage = base64_decode($request->input('original_bachelors_degree'));
+        $personalImage = base64_decode($request->input('personalImage'));
         $personalImagePath = 'student/personalImages/' . uniqid() . '.jpg';
         Storage::put($personalImagePath, $personalImage); 
 
@@ -190,9 +191,8 @@ class StudentController extends Controller
         // Create a new student record in the 'students' table
         $student = Student::create(array_merge(
             $validator->validated(),
-            ['password' => bcrypt($request->password), 'personalImage' => $personalImagePath]
+            ['password' => bcrypt($request->password), ]
         )); 
-        $student->save(); 
 
 
         // Create a new student_photos record in the 'student_photos' table
@@ -296,6 +296,9 @@ class StudentController extends Controller
         ], 201);
     }
 
+    
+    
+
     public function showgrade()
     {
         $id = auth()->user()->id;
@@ -309,6 +312,22 @@ class StudentController extends Controller
 
         return response()->json($department);
     }
+    public function showcoursesForDepartment()
+    {
+        // الحصول على المستخدم المصادق عليه
+        $user = auth()->user();
+    
+        // الحصول على الوقت ومعرف القسم للمستخدم المصادق عليه
+        $time = $user->time;
+        $department_id = $user->department_id;
+    
+        // الحصول على الدورات التي تتطابق مع الوقت ومعرف القسم
+        $courses = Course::where('time', $time)->where('department_id', $department_id)->get();
+    
+        // إعادة النتيجة كاستجابة JSON
+        return response()->json($courses);
+    }
+    
     public function showreports()
     {
         $id = auth()->user()->id;
@@ -533,20 +552,10 @@ if($request->input('type') == 'provideresearchpoint')
                 'error' => 'Student does not belong to any department.',
             ], 404);
         }
-    }
-    public function addresearchplan($researchPlan)
-    {
-        // Get the authenticated user (student)
-        $head = request()->user()->id;
-        $department = Department::where('head_id', $head);
-        $department->research_plan = $researchPlan;
+    } 
 
-        // Check if the student belongs to any department
-
-        return response()->json([
-            'message' => 'addResearch success',
-        ], 404);
-    }
+   
+  
     public function updateAccount(Request $request)
     {
         // Validate the request data

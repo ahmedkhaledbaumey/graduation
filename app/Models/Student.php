@@ -40,7 +40,7 @@ class Student extends Authenticatable implements JWTSubject
     public function courses()
     {
         return $this->belongsToMany(Course::class, 'course_students', 'student_id', 'course_id')
-            ->withPivot('grade', 'firstOrSecond');
+            ->withPivot('grade', 'firstOrSecond','department_id');
     }
 
     // علاقة الطالب مع التقارير (One-to-Many)
@@ -60,7 +60,8 @@ class Student extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(StudentPhotos::class);
     }
-
+  
+    
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
