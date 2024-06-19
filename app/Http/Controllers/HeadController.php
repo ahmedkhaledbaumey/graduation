@@ -16,14 +16,31 @@ use Mockery\Generator\Method;
 class HeadController extends Controller
 {
     public function addgrade(Request $request, $id)
-    {
-        $student = CourseStudent::findOrFail($id);
-
+    { 
+        $course_id = $request->course_id ; 
+        // ابحث عن سجل CourseStudent معين بناءً على معرف الطالب
+        $student = CourseStudent::where('student_id', $id)->where('course_id', $course_id)->firstOrFail();
+    
+        // حدث حقل الدرجة في السجل المحدد
         $student->grade = $request->grade;
         $student->save();
-        return response()->json(['message' => 'Grade Added Successfully.'], 404);
+    
+        return response()->json(['message' => 'Grade Added Successfully.'], 200);
     }
+    
+  
    
+    
+    public function allenrolled()
+    { 
+        
+        $students = CourseStudent::get();
+        if ($students) {
+            return response()->json($students, 200);
+        } else {
+            return response()->json(['message' => 'No Students Found.'], 404);
+        }
+    }
     public function PendingStudent()
     { 
         

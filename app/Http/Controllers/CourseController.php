@@ -57,21 +57,7 @@ class CourseController extends Controller
        
         return response()->json($course, 201);
     }
-    public function addplan(Request $request  , $id)
-    {
-        // Validate request data
-        $validatedData = $request->validate([
-           
-            'reserach_plan' => 'string|nullable',
-         
-        ]);
-
-      $course = Department::findOrFail($id) ;   
-       $course->reserach_plan = $validatedData["reserach_plan"] ;  
-       $course->save() ; 
-       
-        return response()->json($course, 201);
-    }
+  
 
     /**
      * Display the specified resource.

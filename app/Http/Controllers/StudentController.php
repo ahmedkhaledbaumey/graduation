@@ -26,7 +26,7 @@ class StudentController extends Controller
     public function __construct()
     {
         // Apply middleware to protect routes, except for login and register
-        // $this->middleware('auth:student', ['except' => ['login', 'register' ,'makereporthead','makereportprof' ,'addresearchplan']]);
+        // $this->middleware('auth:student', ['except' => ['login', 'register' ,'makereporthead','makereportprof' ,]]);
     }
 
     /**
@@ -292,7 +292,7 @@ class StudentController extends Controller
 
         return response()->json([
             'message' => 'Courses successfully enrolled',
-            'user' => $student
+            // 'user' => $student
         ], 201);
     }
 
@@ -552,10 +552,20 @@ if($request->input('type') == 'provideresearchpoint')
                 'error' => 'Student does not belong to any department.',
             ], 404);
         }
-    } 
+    }
+    public function addresearchplan($researchPlan)
+    {
+        // Get the authenticated user (student)
+        $head = request()->user()->id;
+        $department = Department::where('head_id', $head);
+        $department->research_plan = $researchPlan;
 
-   
-  
+        // Check if the student belongs to any department
+
+        return response()->json([
+            'message' => 'addResearch success',
+        ], 404);
+    }
     public function updateAccount(Request $request)
     {
         // Validate the request data

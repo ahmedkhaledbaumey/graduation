@@ -9,6 +9,7 @@ use App\Http\Controllers\HeadController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\StripeController;
+use App\Models\Head;
 
 // Authentication Routes
 Route::post('/auth/loginall/{guard}', [AdminController::class, 'loginall']);
@@ -34,7 +35,6 @@ Route::middleware('auth:student')->group(function () {
     Route::post('/auth/user-profile', [StudentController::class, 'userProfile']);
     // Enroll courses route
     Route::post('/courses/enroll', [StudentController::class, 'enrollCourses'])->middleware('auth:student');
-    // Route::post('/courses/enrollCourseToDep', [StudentController::class, 'enrollCourseToDep']);
     // Show grade route
     Route::post('/showgrade', [StudentController::class, 'showgrade'])->middleware('auth:student');
     // Show courses route
@@ -59,10 +59,12 @@ Route::middleware('auth:student')->group(function () {
     // Research plan route
     Route::post('/researchplan', [StudentController::class, 'researchplan'])->middleware('auth:student');
 
-    Route::post('/courses/addplan/{id}', [CourseController::class, 'addplan']); // Create a new course
     
     
-    });
+});
+Route::post('/courses/addplan/{id}', [StripeController::class, 'addplan']); // Create a new course
+Route::post('/courses/addgrade/{id}', [HeadController::class, 'addgrade']); // Create a new course
+Route::post('/allenrolled', [HeadController::class, 'allenrolled']); // Create a new course
     // Course routes
     Route::post('/courses', [CourseController::class, 'index']); // List all courses
     Route::post('/courses', [CourseController::class, 'store']); // Create a new course
