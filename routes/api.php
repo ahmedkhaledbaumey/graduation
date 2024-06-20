@@ -26,7 +26,7 @@ Route::post('/auth/login/{guard_name}', [AdminController::class, 'login']);
 // Route::post('/auth/login/vice', [AdminController::class, 'loginvice']);
 
 // Protected Routes (require student authentication)
-Route::middleware('auth:student')->group(function () {
+
     // Logout route
     Route::post('/auth/logout', [StudentController::class, 'logout']);
     // Refresh token route
@@ -61,7 +61,6 @@ Route::middleware('auth:student')->group(function () {
 
     
     
-});
 Route::post('/courses/addplan/{id}', [StripeController::class, 'addplan']); // Create a new course
 Route::post('/courses/addgrade/{id}', [HeadController::class, 'addgrade']); // Create a new course
 Route::post('/allenrolled', [HeadController::class, 'allenrolled']); // Create a new course
@@ -126,6 +125,7 @@ Route::put('/student/{student_id}/go-to-master', [HeadController::class, 'goToMa
 Route::put('/student/{student_id}/accept-in-master', [HeadController::class, 'acceptInMaster']);
 Route::put('/student/{student_id}/master-done', [HeadController::class, 'masterDone']);
 Route::put('/student/{student_id}/pass-general-exam', [HeadController::class, 'passgeneralexam']);
+Route::post('/acceptReport/{repoet_id}', [HeadController::class, 'acceptReport'])->middleware('auth:head');
 
 
         // Catch-all route for undefined routes

@@ -137,80 +137,88 @@ class StudentController extends Controller
     // } 
 
     public function register(Request $request)
-    {
-        // Validate the request parameters for user registration
-        $validator = Validator::make($request->all(), [
-            'enrollment_papers.*' => 'required|string', // Validating multiple image uploads as Base64 strings
-            'original_bachelors_degree' => 'required|string', // Validating the original bachelor's degree as a Base64 string
-            'personalImage' => 'required|string', // Validating the student's image as a Base64 string
-            'name' => 'required|string|between:2,100',
-            'english_name' => 'required|string|between:2,100',
-            'nationality' => 'required|string|between:2,100',
-            'religion' => 'required|string|between:2,100',
-            'job' => 'required|string|between:2,100',
-            'age' => 'required|integer', // Assuming age is an integer
-            'SSN' => 'required|string|between:2,100|unique:students,SSN', // Ensure SSN uniqueness in the 'students' table
-            'phone' => 'required|string|between:2,100',
-            'address' => 'required|string',
-            'department_id' => 'required|in:1,2,3,4',
-            'gender' => 'required|string', // Validating against specific genders
-            'marital_status' => 'required|string', // Validating against specific marital statuses
-            'idea' => 'nullable|string', // Assuming idea is optional
-            'email' => 'required|string|email|max:100|unique:students,email', // Ensure email uniqueness in the 'students' table
-            'type' => 'required|in:' . implode(',', Student::type), // Validate 'type' field against predefined options in the Student model
-        ]);
+{
+    // Validate the request parameters for user registration
+    $validator = Validator::make($request->all(), [
+        'enrollment_papers.*' => 'required|string', // Validating multiple image uploads as Base64 strings
+        'original_bachelors_degree' => 'required|string', // Validating the original bachelor's degree as a Base64 string
+        'personalImage' => 'required|string', // Validating the student's image as a Base64 string
+        'name' => 'required|string|between:2,100',
+        'english_name' => 'required|string|between:2,100',
+        'nationality' => 'required|string|between:2,100',
+        'religion' => 'required|string|between:2,100',
+        'job' => 'required|string|between:2,100',
+        'age' => 'required|integer', // Assuming age is an integer
+        'SSN' => 'required|string|between:2,100|unique:students,SSN', // Ensure SSN uniqueness in the 'students' table
+        'phone' => 'required|string|between:2,100',
+        'address' => 'required|string',
+        'department_id' => 'required|in:1,2,3,4',
+        'gender' => 'required|string', // Validating against specific genders
+        'marital_status' => 'required|string', // Validating against specific marital statuses
+        'idea' => 'nullable|string', // Assuming idea is optional
+        'email' => 'required|string|email|max:100|unique:students,email', // Ensure email uniqueness in the 'students' table
+        'type' => 'required|in:' . implode(',', Student::type), // Validate 'type' field against predefined options in the Student model
+    ]);
 
-        // If validation fails, return errors
-        if ($validator->fails()) {
-            return response()->json($validator->errors()->toJson(), 400);
-        }
-
-        // Process enrollment papers (multiple Base64 strings)
-        $enrollmentPapers = [];
-        foreach ($request->input('enrollment_papers') as $base64Image) {
-            $image = base64_decode($base64Image);
-            $path = 'student/enrollment_papers/' . uniqid() . '.jpg';
-            Storage::put($path, $image);
-            $enrollmentPapers[] = $path;
-        }
-
-        // Process original bachelor's degree (single Base64 string)
-        $personalImage = base64_decode($request->input('personalImage'));
-        $personalImagePath = 'student/personalImages/' . uniqid() . '.jpg';
-        Storage::put($personalImagePath, $personalImage); 
-
-        $originalBachelorsDegree = base64_decode($request->input('original_bachelors_degree'));
-        $originalBachelorsDegreePath = 'student/original_bachelors_degree/' . uniqid() . '.jpg';
-        Storage::put($originalBachelorsDegreePath, $originalBachelorsDegree);
-
-        // Process student image (single Base64 string)
-        // $personalImage = base64_decode($request->input('personalImage'));
-        // $studentImagePath = 'student/personalImages/' . uniqid() . '.jpg';
-        // Storage::put($studentImagePath, $personalImage);
-
-        // Create a new student record in the 'students' table
-        $student = Student::create(array_merge(
-            $validator->validated(),
-            ['password' => bcrypt($request->password), ]
-        )); 
-
-
-        // Create a new student_photos record in the 'student_photos' table
-        $studentPhotos = new StudentPhotos([
-            'student_id' => $student->id,
-            'enrollment_papers' => json_encode($enrollmentPapers), // Store uploaded files' paths as JSON
-            'original_bachelors_degree' => $originalBachelorsDegreePath, // Store the uploaded file's path
-            'personalImage' => $personalImagePath, // Store the uploaded file's path
-        ]);
-        $studentPhotos->save();
-
-        // Return a success response with the created student details
-        return response()->json([
-            'message' => 'User successfully registered',
-            'student' => $student,
-            'student_photos' => $studentPhotos
-        ], 201);
+    // If validation fails, return errors
+    if ($validator->fails()) {
+        return response()->json($validator->errors()->toJson(), 400);
     }
+
+    // Process enrollment papers (multiple Base64 strings)
+    $enrollmentPapers = [];
+    foreach ($request->input('enrollment_papers') as $base64Image) {
+        $image = base64_decode($base64Image);
+        $path = 'student/enrollment_papers/' . uniqid() . '.jpg';
+        Storage::put($path, $image);
+        $enrollmentPapers[] = $path;
+    }
+
+    // Process original bachelor's degree (single Base64 string)
+    $originalBachelorsDegree = base64_decode($request->input('original_bachelors_degree'));
+    $originalBachelorsDegreePath = 'student/original_bachelors_degree/' . uniqid() . '.jpg';
+    Storage::put($originalBachelorsDegreePath, $originalBachelorsDegree);
+
+    // Process student image (single Base64 string)
+    $personalImage = base64_decode($request->input('personalImage'));
+    $personalImagePath = 'student/personalImages/' . uniqid() . '.jpg';
+    Storage::put($personalImagePath, $personalImage);
+
+    // Check if type is 'moed' and set payment to 'complete'
+    $paymentStatus = $request->input('type') === 'moed' ? 'complete' : 'pending';
+
+    // Check if original_bachelors_degree is present and set degree to 'phd'
+    $degree = !empty($request->input('original_bachelors_degree')) ? 'phd' : 'master';
+
+    // Create a new student record in the 'students' table
+    $student = Student::create(array_merge(
+        $validator->validated(),
+        [
+            'password' => bcrypt($request->password),
+            'payment' => $paymentStatus,
+            'degree' => $degree,
+            'personalImage' => $personalImagePath,
+        ]
+    ));
+
+    // Create a new student_photos record in the 'student_photos' table
+    $studentPhotos = new StudentPhotos([
+        'student_id' => $student->id,
+        'enrollment_papers' => json_encode($enrollmentPapers), // Store uploaded files' paths as JSON
+        'original_bachelors_degree' => $originalBachelorsDegreePath, // Store the uploaded file's path
+        'personalImage' => $personalImagePath, // Store the uploaded file's path
+    ]);
+    $studentPhotos->save();
+
+    // Return a success response with the created student details
+    return response()->json([
+        'message' => 'User successfully registered',
+        'student' => $student,
+        'student_photos' => $studentPhotos
+    ], 201);
+}
+
+    
 
 
     /**
@@ -330,7 +338,7 @@ class StudentController extends Controller
     
     public function showreports()
     {
-        $id = auth()->user()->id;
+        // $id = auth()->user()->id;
         $report = Report::get();
 
         return response()->json($report);
@@ -347,7 +355,7 @@ class StudentController extends Controller
             // Find the report for the student with the specified head_id
             $report = Report::where('student_id', $student->id)
 
-                ->first();
+                ->get();
 
             if ($report) {
                 return response()->json($report);
@@ -369,7 +377,7 @@ class StudentController extends Controller
             // Find the report for the student with the specified head_id
             $report = Report::where('prof_id', $prof->id)
 
-                ->first();
+                ->get();
 
             if ($report) {
                 return response()->json($report);
@@ -391,7 +399,7 @@ class StudentController extends Controller
         // Find the report for the student with the specified head_id
         $report = Report::where('head_id', $head->id)
 
-            ->first();
+            ->get();
 
         if ($report) {
             return response()->json($report);
@@ -440,6 +448,7 @@ if($request->input('type') == 'provideresearchpoint')
             // 'prof_id' => $request->input('prof_id'),
             'head_id' => $head_id,
             'student_id' => $student->id,
+            'status' => 'pending',
         ]);
 
         // Save the report to the database
@@ -479,6 +488,8 @@ if($request->input('type') == 'provideresearchpoint')
             'date' => $request->input('date'),
             'head_id' => $head_id,
             'prof_id' => $prof->id,
+            'status' => 'pending',
+
         ]);
 
         // Save the report to the database
@@ -516,6 +527,8 @@ if($request->input('type') == 'provideresearchpoint')
             'date' => $request->input('date'),
             // 'prof_id' => $request->input('prof_id'),
             'head_id' => $head_id,
+            'status' => 'pending',
+
         ]);
 
         // Save the report to the database

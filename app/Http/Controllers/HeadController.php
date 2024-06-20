@@ -6,34 +6,35 @@ use Validator;
 
 use App\Models\Admin;
 use App\Models\Course;
+use App\Models\Report;
 use App\Models\Student;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use App\Models\CourseStudent;
-use Illuminate\Support\Facades\Auth;
 use Mockery\Generator\Method;
+use Illuminate\Support\Facades\Auth;
 
 class HeadController extends Controller
 {
     public function addgrade(Request $request, $id)
-    { 
-        $course_id = $request->course_id ; 
+    {
+        $course_id = $request->course_id;
         // ابحث عن سجل CourseStudent معين بناءً على معرف الطالب
         $student = CourseStudent::where('student_id', $id)->where('course_id', $course_id)->firstOrFail();
-    
+
         // حدث حقل الدرجة في السجل المحدد
         $student->grade = $request->grade;
         $student->save();
-    
+
         return response()->json(['message' => 'Grade Added Successfully.'], 200);
     }
-    
-  
-   
-    
+
+
+
+
     public function allenrolled()
-    { 
-        
+    {
+
         $students = CourseStudent::get();
         if ($students) {
             return response()->json($students, 200);
@@ -42,8 +43,8 @@ class HeadController extends Controller
         }
     }
     public function PendingStudent()
-    { 
-        
+    {
+
         $students = Student::with('studentPhotos')->where('status', 'pending')->get();
         if ($students) {
             return response()->json($students, 200);
@@ -286,11 +287,11 @@ class HeadController extends Controller
             'expires_in' => auth()->factory()->getTTL() * 600000000000000000,
             // 'user' => auth()->user() // Return the authenticated user's data in the response
         ]);
-    } 
+    }
 
     public function secoundTerm($student_id)
     {
-        $student = Student::findOrFail($student_id);  
+        $student = Student::findOrFail($student_id);
         $student->time = 'last';
         if ($student->save()) {
             return response()->json(
@@ -305,7 +306,7 @@ class HeadController extends Controller
     }
     public function goToMaster($student_id)
     {
-        $student = Student::findOrFail($student_id);  
+        $student = Student::findOrFail($student_id);
         $student->time = 'null';
         $student->level = 'null';
         $student->status = 'pending';
@@ -322,7 +323,7 @@ class HeadController extends Controller
     }
     public function acceptInMaster($student_id)
     {
-        $student = Student::findOrFail($student_id);  
+        $student = Student::findOrFail($student_id);
         $student->time = 'null';
         $student->level = 'second_level';
         $student->status = 'accept';
@@ -339,11 +340,11 @@ class HeadController extends Controller
     }
     public function masterDone($student_id)
     {
-        $student = Student::findOrFail($student_id);  
+        $student = Student::findOrFail($student_id);
         $student->time = 'null';
         $student->level = 'null';
-        $student->status = 'pending'; 
-        $student->degree = 'phd'; 
+        $student->status = 'pending';
+        $student->degree = 'phd';
 
         if ($student->save()) {
             return response()->json(
@@ -358,10 +359,10 @@ class HeadController extends Controller
     }
     public function passgeneralexam($student_id)
     {
-        $student = Student::findOrFail($student_id);  
-    
-        $student->status = 'accept'; 
-        $student->generalexam = 'done'; 
+        $student = Student::findOrFail($student_id);
+
+        $student->status = 'accept';
+        $student->generalexam = 'done';
 
         if ($student->save()) {
             return response()->json(
@@ -373,6 +374,36 @@ class HeadController extends Controller
         } else {
             return response()->json(['error' => 'Failed to add account.'], 400);
         }
+    }  
+
+
+
+//accepts reports 
+
+    public function acceptReport($repoet_id) 
+    { 
+        $report = Report::findOrFail($repoet_id); 
+        if(auth()->user()->id==$report->id){
+        $report->status = 'approved';
+        if ($report->save()) {
+            return response()->json(
+                [
+                   'message' =>'report  accept .',
+                ],
+                200
+            );
+        } else {
+            return response()->json(['error' => 'Failed to add account.'], 400);
+        } 
     } 
-  
+    else {
+        return response()->json(['error' => ' action unauthorized.'], 400);
+    } 
+
+    }
+
+
+
+
+
 }

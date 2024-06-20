@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\Department;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CourseController extends Controller
 {
@@ -42,21 +43,34 @@ class CourseController extends Controller
 
         return response()->json($course, 201);
     }
-    public function addmatrial(Request $request  , $id)
-    {
-        // Validate request data
-        $validatedData = $request->validate([
-           
-            'material' => 'string|nullable',
-         
-        ]);
+    public function addmatrial(Request $request, $id)
+{
+    // Validate request data
+    $validator = Validator::make($request->all(), [
+        'material' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx,zip', // Validate the material as a file with specific mime types
+    ]);
 
-      $course = Course::findOrFail($id) ;   
-       $course->material = $validatedData["material"] ;  
-       $course->save() ; 
-       
-        return response()->json($course, 201);
+    // If validation fails, return errors
+    if ($validator->fails()) {
+        return response()->json($validator->errors()->toJson(), 400);
     }
+
+    // Process the material file
+    $material = $request->file('material');
+    $materialPath = 'course/materials/' . uniqid() . '.' . $material->getClientOriginalExtension();
+    Storage::put($materialPath, file_get_contents($material));
+
+    // Find the course and update the material field
+    $course = Course::findOrFail($id);
+    $course->material = $materialPath;
+    $course->save();
+
+    return response()->json([
+        'message' => 'Material Added Successfully.',
+        'course' => $course
+    ], 201);
+}
+
   
 
     /**
