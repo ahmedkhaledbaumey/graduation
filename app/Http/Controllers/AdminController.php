@@ -30,9 +30,9 @@ class AdminController extends Controller
 
             return response()->json(['error' => 'Invalid credentials'], 401);
         } 
-        $user = auth()->user() ; 
+        $student = auth()->user()->load('studentPhotos');
       
-        return response()->json(["data"=>$user ,'token'=> $token], 200); 
+        return response()->json(["data"=>$student ,'token'=> $token], 200); 
 
     }
     public function loginall(Request $request, $guard)

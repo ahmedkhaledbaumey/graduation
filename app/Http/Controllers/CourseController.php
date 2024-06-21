@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Validator;
 
 class CourseController extends Controller
 {

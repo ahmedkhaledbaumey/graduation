@@ -18,7 +18,7 @@ class Student extends Authenticatable implements JWTSubject
     const level = ['first_level', 'second_level'];
 
     protected $fillable = [
-        'type', 'idea', 'address', 'phone', 'SSN', 'name', 'english_name', 'email', 'age', 'password', 'department_id','time','nationality','nationality','job'
+        'type', 'idea', 'address', 'phone', 'SSN', 'name', 'english_name', 'email', 'age', 'password', 'department_id', 'time', 'nationality', 'job', 'gender', 'marital_status', 'religion'
     ];
 
     protected $hidden = [

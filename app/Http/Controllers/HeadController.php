@@ -85,7 +85,7 @@ class HeadController extends Controller
         $student = Student::findOrFail($student_id);
 
         // Generate an email account based on student's name and domain
-        $student->account = trim($student->name . "@fci.bu.edu.eg");
+        $student->account = str_replace(' ', '', trim($student->english_name)) . "@fci.bu.edu.eg";
 
         $status = "accept";
         // Generate a random password (you may adjust this logic as needed)
@@ -93,6 +93,7 @@ class HeadController extends Controller
 
         $student->password = bcrypt($randomPassword);
         $student->status = $status;
+        $student->time = 'first';
 
 
         if ($student->save()) {

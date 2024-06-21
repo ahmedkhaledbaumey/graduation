@@ -214,7 +214,9 @@ class StudentController extends Controller
     return response()->json([
         'message' => 'User successfully registered',
         'student' => $student,
-        'student_photos' => $studentPhotos
+        'student_photos' => $studentPhotos, 
+     
+
     ], 201);
 }
 
@@ -315,11 +317,16 @@ class StudentController extends Controller
     }
     public function showcourses()
     {
-        $id = auth()->user()->id;
-        $department[] = CourseStudent::where('student_id', $id)->get();
-
-        return response()->json($department);
+        // الحصول على معرف الطالب المعتمد
+        $userId = auth()->user()->id;
+    
+        // البحث عن سجلات طالب المقررات باستخدام معرف الطالب
+        $courses = CourseStudent::where('student_id', $userId)->with('course')->get();
+    
+        // إرجاع البيانات كـ JSON
+        return response()->json($courses);
     }
+    
     public function showcoursesForDepartment()
     {
         // الحصول على المستخدم المصادق عليه

@@ -100,6 +100,7 @@ Route::post('/allenrolled', [HeadController::class, 'allenrolled']); // Create a
     Route::post('/schedules/{id}', [ScheduleController::class, 'destroy']);
     
     // Department routes
+        Route::post('/departmentss', [DepartmentController::class, 'index']);
         Route::post('/departments', [DepartmentController::class, 'index']);
         Route::post('/departments', [DepartmentController::class, 'store']);
         Route::post('/departments/{id}', [DepartmentController::class, 'show']);
