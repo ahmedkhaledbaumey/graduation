@@ -124,6 +124,7 @@ class AdminController extends Controller
         $validator = Validator::make($request->all(), [
         
             'email' => 'required|string|email|max:100|unique:students,email', // Ensure email uniqueness in the 'students' table
+            'department_id' => 'required|in:1,2,3,4',
             'password' => 'required|string|confirmed|min:6', // Validate password confirmation and length
         ]);
     

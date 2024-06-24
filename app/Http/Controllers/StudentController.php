@@ -15,6 +15,7 @@ use App\Models\CourseStudent;
 use App\Models\StudentPhotos;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class StudentController extends Controller
 {
@@ -71,12 +72,90 @@ class StudentController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
 
-    // public function register(Request $request)
+     public function register(Request $request)
+     {
+         $validator = Validator::make($request->all(), [
+             'original_bachelors_degree' => 'nullable|file|mimes:jpg,jpeg,png',
+             'personalImage' => 'nullable|file|mimes:jpg,jpeg,png',
+             'master_degree' => 'nullable|file|mimes:jpg,jpeg,png',
+             'BirthCertificate' => 'nullable|file|mimes:jpg,jpeg,png',
+             'IDCardCopy' => 'nullable|file|mimes:jpg,jpeg,png',
+             'RecruitmentPosition' => 'nullable|file|mimes:jpg,jpeg,png',
+             'EmployerApproval' => 'nullable|file|mimes:jpg,jpeg,png',
+             'superAccpet' => 'nullable|file|mimes:jpg,jpeg,png',
+             'four_years_grades' => 'nullable|file|mimes:jpg,jpeg,png',
+             'name' => 'required|string|between:2,100',
+             'english_name' => 'required|string|between:2,100',
+             'nationality' => 'required|string|between:2,100',
+             'religion' => 'required|string|between:2,100',
+             'job' => 'required|string|between:2,100',
+             'age' => 'required|integer',
+             'SSN' => 'required|string|between:2,100|unique:students,SSN',
+             'phone' => 'required|string|between:2,100',
+             'address' => 'required|string',
+             'department_id' => 'required|in:1,2,3,4',
+             'gender' => 'required|string',
+             'marital_status' => 'required|string',
+             'idea' => 'nullable|string',
+             'email' => 'required|string|email|max:100|unique:students,email',
+             'type' => 'required|in:' . implode(',', Student::type),
+         ]);
+     
+         if ($validator->fails()) {
+             return response()->json($validator->errors()->toJson(), 400);
+         }
+     
+         $files = [
+             'original_bachelors_degree', 'personalImage', 'four_years_grades',
+             'master_degree', 'BirthCertificate', 'IDCardCopy', 'RecruitmentPosition',
+             'EmployerApproval', 'superAccpet'
+         ];
+         
+         $filePaths = [];
+         
+         foreach ($files as $file) {
+             if ($request->hasFile($file)) {
+                 $filePaths[$file] = $request->file($file)->store('students/' . $file);
+             } else {
+                 $filePaths[$file] = null;
+             }
+         }
+     
+         $paymentStatus = $request->input('type') === 'moed' ? 'complete' : 'pending';
+         $time = $request->input('type') === 'moed' ? 'first' : 'null';
+         $degree = $request->has('original_bachelors_degree') ? 'phd' : 'master';
+     
+         $student = Student::create(array_merge(
+             $validator->validated(),
+             [
+                 'password' => bcrypt($request->password),
+                 'payment' => $paymentStatus,
+                 'time' => $time,
+                 'degree' => $degree,
+             ]
+         ));
+     
+         $studentPhotos = new StudentPhotos(array_merge(
+             ['student_id' => $student->id],
+             $filePaths
+         ));
+         $studentPhotos->save();
+     
+         return response()->json([
+             'message' => 'User successfully registered',
+             'student' => $student,
+             'student_photos' => $studentPhotos
+         ], 201);
+     }
+     
+    //base 64 
+    //     public function register(Request $request)
     // {
     //     // Validate the request parameters for user registration
     //     $validator = Validator::make($request->all(), [
-    //         'enrollment_papers.*' => 'required|image|mimes:png,jpg,jpeg|max:2048', // Validating multiple image uploads
-    //         'original_bachelors_degree' => 'required|image|mimes:png,jpg,jpeg|max:2048', // Validating the original bachelor's degree
+    //         'enrollment_papers.*' => 'required|string', // Validating multiple image uploads as Base64 strings
+    //         'original_bachelors_degree' => 'nullable|string', // Validating the original bachelor's degree as a Base64 string
+    //         'image' => 'required|string', // Validating the student's image as a Base64 string
     //         'name' => 'required|string|between:2,100',
     //         'english_name' => 'required|string|between:2,100',
     //         'nationality' => 'required|string|between:2,100',
@@ -99,32 +178,57 @@ class StudentController extends Controller
     //         return response()->json($validator->errors()->toJson(), 400);
     //     }
 
-    //     // Process enrollment papers (multiple file uploads)
+    //     // Process enrollment papers (multiple Base64 strings)
     //     $enrollmentPapers = [];
-    //     if ($request->hasFile('enrollment_papers')) {
-    //         foreach ($request->file('enrollment_papers') as $file) {
-    //             $path = $file->store('student/enrollment_papers'); // Store each file in a directory
-    //             $enrollmentPapers[] = $path;
-    //         }
+    //     foreach ($request->input('enrollment_papers') as $base64Image) {
+    //         $image = base64_decode($base64Image);
+    //         $path = 'student/enrollment_papers/' . uniqid() . '.jpg';
+    //         Storage::put($path, $image);
+    //         $enrollmentPapers[] = $path;
     //     }
 
-    //     // Process original bachelor's degree (single file upload)
-    //     $originalBachelorsDegree = null;
-    //     if ($request->hasFile('original_bachelors_degree')) {
-    //         $originalBachelorsDegree = $request->file('original_bachelors_degree')->store('student/original_bachelors_degree');
+    //     // Process original bachelor's degree (single Base64 string)
+    //     $originalBachelorsDegree = base64_decode($request->input('original_bachelors_degree'));
+    //     $originalBachelorsDegreePath = 'student/original_bachelors_degree/' . uniqid() . '.jpg';
+    //     Storage::put($originalBachelorsDegreePath, $originalBachelorsDegree);
+
+    //     // Process student image (single Base64 string)
+    //     $image = base64_decode($request->input('image'));
+    //     $imagePath = 'student/images/' . uniqid() . '.jpg';
+    //     Storage::put($imagePath, $image);
+
+    //     // Check if type is 'moed' and set payment to 'complete'
+    //     $paymentStatus = $request->input('type') === 'moed' ? 'complete' : 'pending';
+    //     $time = $request->input('type') === 'moed' ? 'first' : 'null';
+
+    //     // Check if original_bachelors_degree is present and set degree to 'phd'
+    //     $degree = $request->has('original_bachelors_degree') ? 'phd' : 'master';
+
+    //     // Debugging: Check if the degree is set correctly
+    //     if ($request->has('original_bachelors_degree')) {
+    //         Log::info('Original Bachelor\'s Degree is present. Setting degree to phd.');
+    //     } else {
+    //         Log::info('Original Bachelor\'s Degree is not present. Setting degree to master.');
     //     }
 
     //     // Create a new student record in the 'students' table
     //     $student = Student::create(array_merge(
     //         $validator->validated(),
-    //         ['password' => bcrypt($request->password)]
+    //         [
+    //             'password' => bcrypt($request->password),
+    //             'payment' => $paymentStatus,
+    //             'time' => $time,
+    //             'degree' => $degree,
+    //             'image' => $imagePath,
+    //         ]
     //     ));
 
     //     // Create a new student_photos record in the 'student_photos' table
     //     $studentPhotos = new StudentPhotos([
     //         'student_id' => $student->id,
     //         'enrollment_papers' => json_encode($enrollmentPapers), // Store uploaded files' paths as JSON
-    //         'original_bachelors_degree' => $originalBachelorsDegree, // Store the uploaded file's path
+    //         'original_bachelors_degree' => $originalBachelorsDegreePath, // Store the uploaded file's path
+    //         'image' => $imagePath, // Store the uploaded file's path
     //     ]);
     //     $studentPhotos->save();
 
@@ -132,95 +236,15 @@ class StudentController extends Controller
     //     return response()->json([
     //         'message' => 'User successfully registered',
     //         'student' => $student,
-    //         'student_photos' => $studentPhotos
+    //         'student_photos' => $studentPhotos,
     //     ], 201);
-    // } 
+    // }
 
-    public function register(Request $request)
-{
-    // Validate the request parameters for user registration
-    $validator = Validator::make($request->all(), [
-        'enrollment_papers.*' => 'required|string', // Validating multiple image uploads as Base64 strings
-        'original_bachelors_degree' => 'required|string', // Validating the original bachelor's degree as a Base64 string
-        'personalImage' => 'required|string', // Validating the student's image as a Base64 string
-        'name' => 'required|string|between:2,100',
-        'english_name' => 'required|string|between:2,100',
-        'nationality' => 'required|string|between:2,100',
-        'religion' => 'required|string|between:2,100',
-        'job' => 'required|string|between:2,100',
-        'age' => 'required|integer', // Assuming age is an integer
-        'SSN' => 'required|string|between:2,100|unique:students,SSN', // Ensure SSN uniqueness in the 'students' table
-        'phone' => 'required|string|between:2,100',
-        'address' => 'required|string',
-        'department_id' => 'required|in:1,2,3,4',
-        'gender' => 'required|string', // Validating against specific genders
-        'marital_status' => 'required|string', // Validating against specific marital statuses
-        'idea' => 'nullable|string', // Assuming idea is optional
-        'email' => 'required|string|email|max:100|unique:students,email', // Ensure email uniqueness in the 'students' table
-        'type' => 'required|in:' . implode(',', Student::type), // Validate 'type' field against predefined options in the Student model
-    ]);
 
-    // If validation fails, return errors
-    if ($validator->fails()) {
-        return response()->json($validator->errors()->toJson(), 400);
-    }
 
-    // Process enrollment papers (multiple Base64 strings)
-    $enrollmentPapers = [];
-    foreach ($request->input('enrollment_papers') as $base64Image) {
-        $image = base64_decode($base64Image);
-        $path = 'student/enrollment_papers/' . uniqid() . '.jpg';
-        Storage::put($path, $image);
-        $enrollmentPapers[] = $path;
-    }
 
-    // Process original bachelor's degree (single Base64 string)
-    $originalBachelorsDegree = base64_decode($request->input('original_bachelors_degree'));
-    $originalBachelorsDegreePath = 'student/original_bachelors_degree/' . uniqid() . '.jpg';
-    Storage::put($originalBachelorsDegreePath, $originalBachelorsDegree);
 
-    // Process student image (single Base64 string)
-    $personalImage = base64_decode($request->input('personalImage'));
-    $personalImagePath = 'student/personalImages/' . uniqid() . '.jpg';
-    Storage::put($personalImagePath, $personalImage);
 
-    // Check if type is 'moed' and set payment to 'complete'
-    $paymentStatus = $request->input('type') === 'moed' ? 'complete' : 'pending';
-
-    // Check if original_bachelors_degree is present and set degree to 'phd'
-    $degree = !empty($request->input('original_bachelors_degree')) ? 'phd' : 'master';
-
-    // Create a new student record in the 'students' table
-    $student = Student::create(array_merge(
-        $validator->validated(),
-        [
-            'password' => bcrypt($request->password),
-            'payment' => $paymentStatus,
-            'degree' => $degree,
-            'personalImage' => $personalImagePath,
-        ]
-    ));
-
-    // Create a new student_photos record in the 'student_photos' table
-    $studentPhotos = new StudentPhotos([
-        'student_id' => $student->id,
-        'enrollment_papers' => json_encode($enrollmentPapers), // Store uploaded files' paths as JSON
-        'original_bachelors_degree' => $originalBachelorsDegreePath, // Store the uploaded file's path
-        'personalImage' => $personalImagePath, // Store the uploaded file's path
-    ]);
-    $studentPhotos->save();
-
-    // Return a success response with the created student details
-    return response()->json([
-        'message' => 'User successfully registered',
-        'student' => $student,
-        'student_photos' => $studentPhotos, 
-     
-
-    ], 201);
-}
-
-    
 
 
     /**
@@ -252,10 +276,10 @@ class StudentController extends Controller
     public function userProfile()
     {
         $student = auth()->user()->load('studentPhotos');
-    
+
         return response()->json([
-            'student' => $student,    
-               
+            'student' => $student,
+
             // 'student_photos' => $student->studentPhotos
         ], 201); // Return the authenticated user's profile data
     }
@@ -288,68 +312,149 @@ class StudentController extends Controller
             'course_ids' => 'required|array', // مصفوفة من معرفات المقررات
             'course_ids.*' => 'integer|exists:courses,id', // تحقق من وجود كل معرف مقرر في جدول المقررات
         ]);
-
+    
         // إذا فشل التحقق، يتم إرجاع أخطاء الصحة
         if ($validator->fails()) {
             return response()->json($validator->errors()->toJson(), 400);
         }
-
+    
         // الحصول على الطالب المصادق عليه
         $student = auth()->user();
-
-        // ربط المقررات المطلوبة بالطالب
-        $student->courses()->sync($request->course_ids);
-
+    
+        // ربط المقررات المطلوبة بالطالب دون إزالة المقررات الحالية
+        $student->courses()->syncWithoutDetaching($request->course_ids);
+    
         return response()->json([
             'message' => 'Courses successfully enrolled',
-            // 'user' => $student
         ], 201);
+    } 
+    public function unenrollCourse(Request $request)
+{
+    // Validate the request parameters
+    $validator = Validator::make($request->all(), [
+        'course_id' => 'required|integer|exists:courses,id', // تحقق من وجود معرف المقرر في جدول المقررات
+    ]);
+
+    // إذا فشل التحقق، يتم إرجاع أخطاء الصحة
+    if ($validator->fails()) {
+        return response()->json($validator->errors()->toJson(), 400);
     }
 
+    // الحصول على الطالب المصادق عليه
+    $student = auth()->user();
+
+    // إلغاء تسجيل الطالب من المادة
+    $student->courses()->detach($request->course_id);
+
+    return response()->json([
+        'message' => 'Course successfully unenrolled',
+    ], 200);
+}
     
-    
+
+
 
     public function showgrade()
     {
         $id = auth()->user()->id;
-        $department = CourseStudent::where('student_id', $id)->first();
+        $department = CourseStudent::where('student_id', $id)->get();
         return response()->json($department);
     }
     public function showcourses()
     {
         // الحصول على معرف الطالب المعتمد
         $userId = auth()->user()->id;
-    
+
         // البحث عن سجلات طالب المقررات باستخدام معرف الطالب
         $courses = CourseStudent::where('student_id', $userId)->with('course')->get();
-    
+
         // إرجاع البيانات كـ JSON
         return response()->json($courses);
     }
-    
+    public function showallcourses()
+    {
+        // الحصول على معرف الطالب المعتمد
+
+        // البحث عن سجلات طالب المقررات باستخدام معرف الطالب
+        $courses = Course::get();
+
+        // إرجاع البيانات كـ JSON
+        return response()->json($courses);
+    }
+
+
+
     public function showcoursesForDepartment()
     {
         // الحصول على المستخدم المصادق عليه
         $user = auth()->user();
-    
+
         // الحصول على الوقت ومعرف القسم للمستخدم المصادق عليه
         $time = $user->time;
         $department_id = $user->department_id;
-    
+
         // الحصول على الدورات التي تتطابق مع الوقت ومعرف القسم
         $courses = Course::where('time', $time)->where('department_id', $department_id)->get();
-    
+
         // إعادة النتيجة كاستجابة JSON
         return response()->json($courses);
     }
-    
-    public function showreports()
-    {
-        // $id = auth()->user()->id;
-        $report = Report::get();
 
-        return response()->json($report);
-    }
+    // public function showreports()
+    // {
+    //     $head_id = auth()->user()->id;
+    //     // احصل على تقارير مع اسم الطالب فقط
+    //     $reports = Report::with(['student' => function ($query) {
+    //         $query->select('id', 'name');
+    //     }])->where('head_id', $head_id)->get();
+
+    //     // تعديل البيانات لإرجاع اسم الطالب فقط مع التقرير
+    //     // $reportsWithStudentName = $reports->map(function($report) {
+    //     //     return [
+    //     //         'report_id' => $report->id,
+    //     //         'report_content' => $report->content,
+    //     //         'student_name' => $report->student->name
+    //     //     ];
+    //     // });
+
+    //     return response()->json($reports);
+    // }
+
+    public function showreports()
+{
+    $head_id = auth()->user()->id;
+
+    // احصل على تقارير مع اسم الطالب فقط
+    $reports = Report::with(['student' => function ($query) {
+        $query->select('id', 'name');
+    }])->where('head_id', $head_id)->get();
+
+    // تعديل البيانات لإرجاع جميع الحقول بدون الحقول التي تحتوي على null
+    $filteredReports = $reports->map(function($report) {
+        // تحويل التقرير إلى مصفوفة
+        $reportArray = $report->toArray();
+
+        // إزالة الحقول التي تحتوي على null
+        $reportArray = array_filter($reportArray, function($value) {
+            return !is_null($value);
+        });
+
+        // نفس الشيء للطالب المرتبط بالتقرير
+        if (isset($reportArray['student'])) {
+            $reportArray['student'] = array_filter($reportArray['student'], function($value) {
+                return !is_null($value);
+            });
+        }
+
+        return $reportArray;
+    });
+
+    return response()->json($filteredReports);
+}
+
+
+
+   
 
     public function showreportsstudent()
     {
@@ -428,14 +533,12 @@ class StudentController extends Controller
             // 'prof_id' => '|exists:profs,id', // Ensure the provided professor ID exists
             // 'department_id' => 'required|exists:departments,id', // Ensure the provided department ID exists
         ]);
-if($request->input('type') == 'provideresearchpoint') 
-{  
-    $validator = Validator::make($request->all(), [
-            'researchpoint' => 'required|string',
-         
-        ]); 
+        if ($request->input('type') == 'provideresearchpoint') {
+            $validator = Validator::make($request->all(), [
+                'researchpoint' => 'required|string',
 
-} 
+            ]);
+        }
         // Check if validation fails
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
@@ -554,6 +657,7 @@ if($request->input('type') == 'provideresearchpoint')
         $sceduals = Schedule::findOrFail($id);
         return response()->json($sceduals);
     }
+
     public function researchplan()
     {
         // Get the authenticated user (student)
@@ -573,19 +677,19 @@ if($request->input('type') == 'provideresearchpoint')
             ], 404);
         }
     }
-    public function addresearchplan($researchPlan)
-    {
-        // Get the authenticated user (student)
-        $head = request()->user()->id;
-        $department = Department::where('head_id', $head);
-        $department->research_plan = $researchPlan;
+    // public function addresearchplan($researchPlan)
+    // {
+    //     // Get the authenticated user (student)
+    //     $head = request()->user()->id;
+    //     $department = Department::where('head_id', $head);
+    //     $department->research_plan = $researchPlan;
 
-        // Check if the student belongs to any department
+    //     // Check if the student belongs to any department
 
-        return response()->json([
-            'message' => 'addResearch success',
-        ], 404);
-    }
+    //     return response()->json([
+    //         'message' => 'addResearch success',
+    //     ], 404);
+    // }
     public function updateAccount(Request $request)
     {
         // Validate the request data

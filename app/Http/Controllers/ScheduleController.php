@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Schedule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ScheduleController extends Controller
 
@@ -22,15 +23,31 @@ class ScheduleController extends Controller
      */
     public function store(Request $request)
     {
+        // Validate the request parameters for schedule creation
         $validatedData = $request->validate([
             'type' => 'required|in:exam,study',
-            'content' => 'nullable|string',
+            'content' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,txt', // Validate 'content' as a file with specified mime types
         ]);
-
-        $Schedule = Schedule::create($validatedData);
-
-        return response()->json($Schedule, 201);
+    
+        // Process and store the content file if it exists
+        if ($request->hasFile('content')) {
+            $filePath = $request->file('content')->store('public/schedule_content');
+            $validatedData['content'] = $filePath;
+        }
+    
+        // Create a new schedule record in the 'schedules' table
+        $schedule = Schedule::create($validatedData);
+    
+        // Generate URL for the stored file
+        if (isset($filePath)) {
+            $fileUrl = Storage::url($filePath);
+            $schedule->content_url = $fileUrl;
+        }
+    
+        // Return a success response with the created schedule details
+        return response()->json($schedule, 201);
     }
+    
 
     /**
      * Display the specified resource.
@@ -44,7 +61,7 @@ class ScheduleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function updateschedule(Request $request, $id)
     {
         $Schedule = Schedule::findOrFail($id);
 
@@ -61,7 +78,7 @@ class ScheduleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroyschedules($id)
     {
         $Schedule = Schedule::findOrFail($id);
         $Schedule->delete();

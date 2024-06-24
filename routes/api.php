@@ -35,13 +35,16 @@ Route::post('/auth/login/{guard_name}', [AdminController::class, 'login']);
     Route::post('/auth/user-profile', [StudentController::class, 'userProfile']);
     // Enroll courses route
     Route::post('/courses/enroll', [StudentController::class, 'enrollCourses'])->middleware('auth:student');
+    Route::post('/courses/unenrollCourse', [StudentController::class, 'unenrollCourse'])->middleware('auth:student');
     // Show grade route
     Route::post('/showgrade', [StudentController::class, 'showgrade'])->middleware('auth:student');
     // Show courses route
     Route::post('/showcourses', [StudentController::class, 'showcourses'])->middleware('auth:student');
+    Route::post('/showallcourses', [StudentController::class, 'showallcourses']);
     Route::post('/showcoursesForDepartment', [StudentController::class, 'showcoursesForDepartment'])->middleware('auth:student');
     // Show reports route
     Route::post('/showreports', [StudentController::class, 'showreports'])->middleware('auth:head');
+    Route::post('/showreportbytype/{type}', [HeadController::class, 'showreportbytype'])->middleware('auth:head');
     // Show specific report for student route
     Route::post('/showreportsstudent', [StudentController::class, 'showreportsstudent'])->middleware('auth:student');
     // Show specific report for professor route
@@ -55,7 +58,6 @@ Route::post('/auth/login/{guard_name}', [AdminController::class, 'login']);
     // Make report by department head route
     
     // Show schedule details route
-    Route::post('/showscheduales/{id}', [StudentController::class, 'showscheduales'])->middleware('auth:student');
     // Research plan route
     Route::post('/researchplan', [StudentController::class, 'researchplan'])->middleware('auth:student');
 
@@ -63,9 +65,10 @@ Route::post('/auth/login/{guard_name}', [AdminController::class, 'login']);
     
 Route::post('/courses/addplan/{id}', [StripeController::class, 'addplan']); // Create a new course
 Route::post('/courses/addgrade/{id}', [HeadController::class, 'addgrade']); // Create a new course
+Route::post('/courses/showstudentsincoursetoaddgrade/{course_id}', [HeadController::class, 'showstudentsincoursetoaddgrade']); // Create a new course
 Route::post('/allenrolled', [HeadController::class, 'allenrolled']); // Create a new course
     // Course routes
-    Route::post('/courses', [CourseController::class, 'index']); // List all courses
+    Route::post('/coursess', [CourseController::class, 'index']); // List all courses
     Route::post('/courses', [CourseController::class, 'store']); // Create a new course
     Route::post('/courses/addmatrial/{id}', [CourseController::class, 'addmatrial']); // Create a new course
     Route::post('/courses/{course}', [CourseController::class, 'show']); // Show details of a specific course
@@ -94,10 +97,12 @@ Route::post('/allenrolled', [HeadController::class, 'allenrolled']); // Create a
             // Schedule routes
            
     Route::post('/schedules', [ScheduleController::class, 'index']);
-    Route::post('/schedules', [ScheduleController::class, 'store']);
-    Route::post('/schedules/{id}', [ScheduleController::class, 'show']);
-    Route::post('/schedules/{id}', [ScheduleController::class, 'update']);
-    Route::post('/schedules/{id}', [ScheduleController::class, 'destroy']);
+    Route::post('/scheduless', [ScheduleController::class, 'store']);
+    Route::post('/showscheduales/{id}', [StudentController::class, 'showscheduales']);
+
+    // Route::post('/schedules/{id}', [ScheduleController::class, 'show']);
+    Route::post('/updateschedule/{id}', [ScheduleController::class, 'update']);
+    Route::post('/destroyschedules/{id}', [ScheduleController::class, 'destroy']);
     
     // Department routes
         Route::post('/departmentss', [DepartmentController::class, 'index']);
@@ -112,6 +117,8 @@ Route::post('/allenrolled', [HeadController::class, 'allenrolled']); // Create a
         Route::post('/addacounts', [HeadController::class, 'addStudents']);
         Route::post('/rejectStudents', [HeadController::class, 'rejectStudents']);
         Route::post('/PendingStudent', [HeadController::class, 'PendingStudent']);
+        Route::post('/PendingStudenthead', [HeadController::class, 'PendingStudenthead']);
+        Route::post('/showstudenttofinishmaster', [HeadController::class, 'showstudenttofinishmaster'])->middleware('auth:head');;
 
         Route::post('/addadmin', [HeadController::class, 'addadmin']);
         // routes/api.php

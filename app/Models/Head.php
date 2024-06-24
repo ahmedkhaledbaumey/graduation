@@ -12,7 +12,7 @@ class Head extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'password', 'email', 'degree']; // إضافة المزيد حسب الحاجة
+    protected $fillable = ['name', 'password', 'email', 'degree','department_id']; // إضافة المزيد حسب الحاجة
 
 
 protected $hidden = [

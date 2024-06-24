@@ -48,7 +48,7 @@ class CourseController extends Controller
 {
     // Validate request data
     $validator = Validator::make($request->all(), [
-        'material' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx,zip', // Validate the material as a file with specific mime types
+        'material' => 'required|file|mimes:jpg,jpeg,png,pdf,pptx,doc,docx,zip', // Validate the material as a file with specific mime types
     ]);
 
     // If validation fails, return errors
